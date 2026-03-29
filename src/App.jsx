@@ -21,7 +21,7 @@ const INITIAL_PRODUCTS = [
 ];
 
 /* ─────────────── CART REDUCER ─────────────── */
-const isUrl = (str) => str && str.startsWith("http");
+const isUrl = (str) => str && (str.startsWith("http") || str.startsWith("data:"));
 const ProductImage = ({ src, size = 48, style: extraStyle = {} }) => {
   if (isUrl(src)) {
     return <img src={src} alt="" style={{ width: size, height: size, objectFit: "cover", borderRadius: 12, ...extraStyle }} />;
@@ -493,11 +493,50 @@ function AdminPanel({ products, setProducts, adminAuth, setAdminAuth }) {
   const [customCategories, setCustomCategories] = useState([]);
   const [showNewCat, setShowNewCat] = useState(false);
   const [newCatName, setNewCatName] = useState("");
-  const [imageMode, setImageMode] = useState("url"); // "url" or "emoji"
-  const [editImageMode, setEditImageMode] = useState("url");
+  const [imageMode, setImageMode] = useState("gallery"); // "gallery", "url" or "emoji"
+  const [editImageMode, setEditImageMode] = useState("gallery");
+  const [imageError, setImageError] = useState("");
   const [newProduct, setNewProduct] = useState({ name: "", price: "", category: "Collares", image: "", desc: "", stock: "", featured: false });
 
   const allCategories = [...CATEGORIES.filter(c => c !== "Todos"), ...customCategories];
+
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+
+  const formatSize = (bytes) => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
+  const handleFileUpload = (e, target) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setImageError("");
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setImageError(`❌ Formato no soportado: "${file.type.split("/")[1] || "desconocido"}". Solo se permiten JPG, PNG, WEBP y GIF.`);
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > MAX_SIZE) {
+      setImageError(`❌ La imagen pesa ${formatSize(file.size)} y el máximo es 2 MB. Intenta comprimir la imagen o usar una más pequeña.`);
+      e.target.value = "";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const base64 = ev.target.result;
+      if (target === "new") {
+        setNewProduct((prev) => ({ ...prev, image: base64 }));
+      } else {
+        setEditForm((prev) => ({ ...prev, image: base64 }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   if (!adminAuth) {
     return (
@@ -518,7 +557,7 @@ function AdminPanel({ products, setProducts, adminAuth, setAdminAuth }) {
   const startEdit = (p) => {
     setEditingId(p.id);
     setEditForm({ ...p });
-    setEditImageMode(isUrl(p.image) ? "url" : "emoji");
+    setEditImageMode(isUrl(p.image) || (p.image && p.image.startsWith("data:")) ? (p.image.startsWith("data:") ? "gallery" : "url") : "emoji");
   };
   const saveEdit = () => {
     setProducts((prev) => prev.map((p) => p.id === editingId ? { ...editForm, price: parseFloat(editForm.price), stock: parseInt(editForm.stock) } : p));
@@ -608,19 +647,46 @@ function AdminPanel({ products, setProducts, adminAuth, setAdminAuth }) {
             </div>
           )}
 
-          {/* Image: URL or Emoji toggle */}
+          {/* Image: Gallery, URL or Emoji toggle */}
           <div style={styles.imageSection}>
             <p style={styles.imageSectionTitle}>📷 Imagen del producto</p>
             <div style={styles.imageToggle}>
-              <button style={imageMode === "url" ? styles.imgToggleActive : styles.imgToggleBtn} onClick={() => { setImageMode("url"); setNewProduct({ ...newProduct, image: "" }); }}>
-                🔗 URL de foto
+              <button style={imageMode === "gallery" ? styles.imgToggleActive : styles.imgToggleBtn} onClick={() => { setImageMode("gallery"); setNewProduct({ ...newProduct, image: "" }); setImageError(""); }}>
+                📱 Galería
               </button>
-              <button style={imageMode === "emoji" ? styles.imgToggleActive : styles.imgToggleBtn} onClick={() => { setImageMode("emoji"); setNewProduct({ ...newProduct, image: "" }); }}>
+              <button style={imageMode === "url" ? styles.imgToggleActive : styles.imgToggleBtn} onClick={() => { setImageMode("url"); setNewProduct({ ...newProduct, image: "" }); setImageError(""); }}>
+                🔗 URL
+              </button>
+              <button style={imageMode === "emoji" ? styles.imgToggleActive : styles.imgToggleBtn} onClick={() => { setImageMode("emoji"); setNewProduct({ ...newProduct, image: "" }); setImageError(""); }}>
                 😀 Emoji
               </button>
             </div>
 
-            {imageMode === "url" ? (
+            {imageMode === "gallery" && (
+              <>
+                <label style={styles.uploadBtn}>
+                  <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { setImageError(""); handleFileUpload(e, "new"); }} />
+                  📷 Elegir foto de la galería
+                </label>
+                <p style={styles.imgHelp}>Formatos: JPG, PNG, WEBP, GIF · Máximo 2MB</p>
+                {imageError && (
+                  <div style={styles.imgErrorBox}>
+                    <p style={styles.imgErrorText}>{imageError}</p>
+                  </div>
+                )}
+                {newProduct.image && newProduct.image.startsWith("data:") && (
+                  <div style={styles.imgPreview}>
+                    <img src={newProduct.image} alt="Preview" style={styles.imgPreviewImg} />
+                    <div style={styles.imgPreviewActions}>
+                      <p style={styles.imgPreviewLabel}>✅ Foto cargada</p>
+                      <button style={styles.imgRemoveBtn} onClick={() => setNewProduct({ ...newProduct, image: "" })}>✕ Quitar</button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            {imageMode === "url" && (
               <>
                 <input style={styles.input} placeholder="Pega aquí el link directo de imgBB" value={newProduct.image} onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })} />
                 <p style={styles.imgHelp}>💡 Sube tu foto en <strong>imgbb.com</strong> y pega el "Direct link"</p>
@@ -631,7 +697,9 @@ function AdminPanel({ products, setProducts, adminAuth, setAdminAuth }) {
                   </div>
                 )}
               </>
-            ) : (
+            )}
+
+            {imageMode === "emoji" && (
               <>
                 <input style={styles.input} placeholder="Escribe un emoji (ej: 🐾 🦴 🎾)" value={newProduct.image} onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })} />
                 {newProduct.image && (
@@ -670,16 +738,40 @@ function AdminPanel({ products, setProducts, adminAuth, setAdminAuth }) {
 
                 {/* Edit image */}
                 <div style={styles.imageToggle}>
-                  <button style={editImageMode === "url" ? styles.imgToggleActiveSm : styles.imgToggleBtnSm} onClick={() => { setEditImageMode("url"); setEditForm({ ...editForm, image: "" }); }}>
+                  <button style={editImageMode === "gallery" ? styles.imgToggleActiveSm : styles.imgToggleBtnSm} onClick={() => { setEditImageMode("gallery"); setEditForm({ ...editForm, image: "" }); setImageError(""); }}>
+                    📱 Galería
+                  </button>
+                  <button style={editImageMode === "url" ? styles.imgToggleActiveSm : styles.imgToggleBtnSm} onClick={() => { setEditImageMode("url"); setEditForm({ ...editForm, image: "" }); setImageError(""); }}>
                     🔗 URL
                   </button>
-                  <button style={editImageMode === "emoji" ? styles.imgToggleActiveSm : styles.imgToggleBtnSm} onClick={() => { setEditImageMode("emoji"); setEditForm({ ...editForm, image: "" }); }}>
+                  <button style={editImageMode === "emoji" ? styles.imgToggleActiveSm : styles.imgToggleBtnSm} onClick={() => { setEditImageMode("emoji"); setEditForm({ ...editForm, image: "" }); setImageError(""); }}>
                     😀 Emoji
                   </button>
                 </div>
-                <input style={styles.inputSm} placeholder={editImageMode === "url" ? "URL de la imagen" : "Emoji"} value={editForm.image} onChange={(e) => setEditForm({ ...editForm, image: e.target.value })} />
-                {editForm.image && isUrl(editForm.image) && (
-                  <img src={editForm.image} alt="Preview" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 8 }} />
+                {editImageMode === "gallery" ? (
+                  <>
+                    <label style={styles.uploadBtnSm}>
+                      <input type="file" accept="image/*" style={{ display: "none" }} onChange={(e) => { setImageError(""); handleFileUpload(e, "edit"); }} />
+                      📷 Elegir foto
+                    </label>
+                    {imageError && (
+                      <div style={styles.imgErrorBox}>
+                        <p style={styles.imgErrorText}>{imageError}</p>
+                      </div>
+                    )}
+                    {editForm.image && (editForm.image.startsWith("data:") || isUrl(editForm.image)) && (
+                      <img src={editForm.image} alt="Preview" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 8, marginTop: 4 }} />
+                    )}
+                  </>
+                ) : editImageMode === "url" ? (
+                  <>
+                    <input style={styles.inputSm} placeholder="URL de la imagen" value={editForm.image} onChange={(e) => setEditForm({ ...editForm, image: e.target.value })} />
+                    {editForm.image && isUrl(editForm.image) && (
+                      <img src={editForm.image} alt="Preview" style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 8, marginTop: 4 }} />
+                    )}
+                  </>
+                ) : (
+                  <input style={styles.inputSm} placeholder="Emoji (ej: 🐾)" value={editForm.image} onChange={(e) => setEditForm({ ...editForm, image: e.target.value })} />
                 )}
 
                 <label style={{ ...styles.checkLabel, marginBottom: 0 }}>
@@ -902,7 +994,13 @@ const styles = {
   imgPreview: { background: "#fff", borderRadius: 12, padding: 12, textAlign: "center", border: "2px dashed #eee" },
   imgPreviewImg: { maxWidth: "100%", maxHeight: 160, objectFit: "contain", borderRadius: 8 },
   imgPreviewLabel: { fontSize: 11, color: "#aaa", marginTop: 6 },
+  imgPreviewActions: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 },
+  imgRemoveBtn: { background: "#FFF0F0", color: "#FF6B6B", border: "none", borderRadius: 8, padding: "4px 10px", fontSize: 12, fontWeight: 700, cursor: "pointer" },
   emojiPreview: { textAlign: "center", padding: 12, background: "#fff", borderRadius: 12, border: "2px dashed #eee" },
+  uploadBtn: { display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "14px", background: "linear-gradient(135deg, #FF6B6B, #A855F7)", color: "#fff", borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: "pointer", border: "none", marginBottom: 8, textAlign: "center" },
+  uploadBtnSm: { display: "flex", alignItems: "center", justifyContent: "center", gap: 6, width: "100%", padding: "8px", background: "linear-gradient(135deg, #FF6B6B, #A855F7)", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", textAlign: "center" },
+  imgErrorBox: { background: "#FFF0F0", border: "2px solid #FF4444", borderRadius: 12, padding: "12px 14px", marginBottom: 10 },
+  imgErrorText: { margin: 0, color: "#CC0000", fontSize: 13, fontWeight: 700, lineHeight: 1.4 },
 
   /* Footer */
   footer: { textAlign: "center", padding: "20px 16px", fontSize: 13, color: "#aaa", borderTop: "1px solid #f0f0f0", marginTop: 40 },
