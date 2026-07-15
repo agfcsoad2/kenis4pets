@@ -123,6 +123,21 @@ export default function Kenis4Pets() {
   const [adminAuth, setAdminAuth] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
 
+  // Al volver de Stripe Checkout, Stripe añade ?checkout=success o ?checkout=cancel
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const result = params.get("checkout");
+    if (result === "success") {
+      dispatch({ type: "CLEAR" });
+      setPage("checkout");
+      setOrderPlaced(true);
+    } else if (result === "cancel") {
+      setPage("checkout");
+      setOrderPlaced(false);
+    }
+    if (result) window.history.replaceState({}, "", window.location.pathname);
+  }, []);
+
   const C = config.colors;
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const cartTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
@@ -243,10 +258,28 @@ function ProductDetail({ product, addToCart, goBack, C, grad }) {
 /* ═══════════════ CHECKOUT ═══════════════ */
 function CheckoutPage({ cart, cartTotal, onOrder, goBack, C, grad }) {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", city: "", zip: "", cardName: "", cardNum: "", expiry: "", cvv: "" });
-  const [pay, setPay] = useState("card");
+  const [form, setForm] = useState({ name: "", email: "", phone: "", address: "", city: "", zip: "" });
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   const u = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handlePay = async () => {
+    setError(""); setBusy(true);
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart, customer: { email: form.email, name: form.name } }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || "Error al iniciar el pago");
+      window.location.href = data.url; // redirige a Stripe Checkout (página segura de Stripe)
+    } catch (e) {
+      setBusy(false);
+      setError("No se pudo iniciar el pago. Inténtalo de nuevo.");
+    }
+  };
+
   return <div style={{ padding: "16px 0" }}>
     <button style={ST.backBtn} onClick={goBack}>← Seguir comprando</button>
     <h2 style={{ margin: "0 0 16px", fontSize: 22, fontWeight: 900 }}>💳 Checkout</h2>
@@ -254,11 +287,10 @@ function CheckoutPage({ cart, cartTotal, onOrder, goBack, C, grad }) {
     {step === 1 && <div style={ST.formCard}><h3 style={ST.formTitle}>📋 Tus Datos</h3><input style={ST.input} placeholder="Nombre" value={form.name} onChange={(e) => u("name", e.target.value)} /><input style={ST.input} placeholder="Email" value={form.email} onChange={(e) => u("email", e.target.value)} /><input style={ST.input} placeholder="Teléfono" value={form.phone} onChange={(e) => u("phone", e.target.value)} /><button style={{ ...ST.nextBtn, background: grad }} onClick={() => setStep(2)}>Continuar →</button></div>}
     {step === 2 && <div style={ST.formCard}><h3 style={ST.formTitle}>📦 Envío</h3><input style={ST.input} placeholder="Dirección" value={form.address} onChange={(e) => u("address", e.target.value)} /><div style={{ display: "flex", gap: 10 }}><input style={{ ...ST.input, flex: 1 }} placeholder="Ciudad" value={form.city} onChange={(e) => u("city", e.target.value)} /><input style={{ ...ST.input, width: 100 }} placeholder="C.P." value={form.zip} onChange={(e) => u("zip", e.target.value)} /></div><div style={ST.btnRow}><button style={ST.prevBtn} onClick={() => setStep(1)}>← Atrás</button><button style={{ ...ST.nextBtn, background: grad }} onClick={() => setStep(3)}>Continuar →</button></div></div>}
     {step === 3 && <div style={ST.formCard}><h3 style={ST.formTitle}>💰 Pago</h3>
-      <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>{[["card", "💳 Tarjeta"], ["paypal", "🅿️ PayPal"], ["transfer", "🏦 Transfer."]].map(([v, l]) => <button key={v} style={pay === v ? { ...ST.payActive, borderColor: C.primary, color: C.primary } : ST.payBtn} onClick={() => setPay(v)}>{l}</button>)}</div>
-      {pay === "card" && <><input style={ST.input} placeholder="Nombre en tarjeta" value={form.cardName} onChange={(e) => u("cardName", e.target.value)} /><input style={ST.input} placeholder="Número" value={form.cardNum} onChange={(e) => u("cardNum", e.target.value)} /><div style={{ display: "flex", gap: 10 }}><input style={{ ...ST.input, flex: 1 }} placeholder="MM/AA" value={form.expiry} onChange={(e) => u("expiry", e.target.value)} /><input style={{ ...ST.input, width: 80 }} placeholder="CVV" value={form.cvv} onChange={(e) => u("cvv", e.target.value)} /></div></>}
-      {pay !== "card" && <div style={{ background: "#f9f9f9", borderRadius: 12, padding: 16, marginBottom: 12 }}><p style={{ fontSize: 14, color: "#555" }}>{pay === "paypal" ? "Serás redirigido a PayPal." : "Datos bancarios por email."}</p></div>}
+      <div style={{ background: "#f9f9f9", borderRadius: 12, padding: 16, marginBottom: 12 }}><p style={{ fontSize: 14, color: "#555" }}>🔒 Pagarás en la página segura de Stripe. Aceptamos tarjeta de crédito/débito.</p></div>
       <div style={{ background: "#FAFAFA", borderRadius: 12, padding: 16, marginTop: 12 }}><h4 style={{ margin: "0 0 10px", fontSize: 14 }}>Resumen</h4>{cart.map((i) => <div key={i.id} style={ST.sumRow}><span>{i.name} x{i.qty}</span><span>${(i.price * i.qty).toFixed(2)}</span></div>)}<div style={{ ...ST.sumRow, borderTop: `2px solid ${C.primary}`, paddingTop: 8, marginTop: 8, fontWeight: 700 }}><span>Total</span><span style={{ color: C.primary, fontSize: 18 }}>${cartTotal.toFixed(2)}</span></div></div>
-      <div style={ST.btnRow}><button style={ST.prevBtn} onClick={() => setStep(2)}>← Atrás</button><button style={{ ...ST.nextBtn, background: `linear-gradient(135deg, ${C.accent}, #60A5FA)` }} onClick={() => { setBusy(true); setTimeout(() => { setBusy(false); onOrder(); }, 2000); }} disabled={busy}>{busy ? "Procesando..." : `Pagar $${cartTotal.toFixed(2)}`}</button></div>
+      {error && <div style={{ background: "#FFF0F0", borderRadius: 10, padding: 12, marginTop: 12 }}><p style={{ color: "#E11D48", fontSize: 13, margin: 0 }}>{error}</p></div>}
+      <div style={ST.btnRow}><button style={ST.prevBtn} onClick={() => setStep(2)}>← Atrás</button><button style={{ ...ST.nextBtn, background: `linear-gradient(135deg, ${C.accent}, #60A5FA)` }} onClick={handlePay} disabled={busy}>{busy ? "Redirigiendo..." : `Pagar $${cartTotal.toFixed(2)}`}</button></div>
     </div>}
   </div>;
 }
