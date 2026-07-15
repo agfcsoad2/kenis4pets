@@ -264,7 +264,10 @@ function CheckoutPage({ cart, cartTotal, onOrder, goBack, C, grad }) {
   const u = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 
   const handlePay = async () => {
-    setError(""); setBusy(true);
+    setError("");
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email);
+    if (!emailOk) { setError("Revisa el email, no tiene un formato válido."); return; }
+    setBusy(true);
     try {
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
