@@ -1,16 +1,17 @@
 import { put, list } from "@vercel/blob";
 
 const BLOB_PATH = "kenis4pets/store-data.json";
+const LIST_PREFIX = "kenis4pets/";
 
 export default async function handler(req, res) {
   if (req.method === "GET") {
     try {
-      const { blobs } = await list({ prefix: BLOB_PATH });
-      const match = blobs.find((b) => b.pathname === BLOB_PATH);
+      const { blobs } = await list({ prefix: LIST_PREFIX });
+      const match = blobs.find((b) => b.pathname === BLOB_PATH) || blobs.find((b) => b.pathname.startsWith("kenis4pets/store-data"));
       if (!match) return res.status(200).json({ exists: false, debug: { allPathnames: blobs.map((b) => b.pathname), hasToken: !!process.env.BLOB_READ_WRITE_TOKEN } });
       const r = await fetch(match.url, { cache: "no-store" });
       const data = await r.json();
-      return res.status(200).json({ exists: true, data });
+      return res.status(200).json({ exists: true, data, debug: { matchedPathname: match.pathname } });
     } catch (err) {
       console.error("Store GET error:", err);
       return res.status(500).json({ error: "No se pudo cargar el catálogo", debug: String(err) });
@@ -32,7 +33,9 @@ export default async function handler(req, res) {
         access: "public",
         contentType: "application/json",
         allowOverwrite: true,
+        addRandomSuffix: false,
       });
+      console.log("BLOB PUT OK:", JSON.stringify({ pathname: result.pathname, url: result.url }));
       return res.status(200).json({ ok: true, debug: { pathname: result.pathname, url: result.url } });
     } catch (err) {
       console.error("Store POST error:", err);
