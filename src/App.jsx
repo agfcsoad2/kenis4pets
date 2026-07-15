@@ -307,7 +307,8 @@ function CheckoutPage({ cart, cartTotal, onOrder, goBack, C, grad }) {
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart, customer: { email: form.email, name: form.      });
+                body: JSON.stringify({ cart, customer: { email: form.email, name: form.name } }),
+      });
       const data = await res.json();
       if (!res.ok || !data.url) throw new Error(data.error || "Error al iniciar el pago");
       window.location.href = data.url; // redirige a Stripe Checkout (página segura de Stripe)
