@@ -9,10 +9,10 @@ export default async function handler(req, res) {
       const { blobs } = await list({ prefix: LIST_PREFIX });
       const candidates = blobs.filter((b) => b.pathname === BLOB_PATH || b.pathname.startsWith("kenis4pets/store-data"));
       const match = candidates.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))[0];
-      if (!match) return res.status(200).json({ exists: false, debug: { allPathnames: blobs.map((b) => b.pathname), hasToken: !!process.env.BLOB_READ_WRITE_TOKEN } });
+      if (!match) return res.status(200).json({ exists: false });
       const r = await fetch(`${match.url}?t=${Date.now()}`, { cache: "no-store" });
       const data = await r.json();
-      return res.status(200).json({ exists: true, data, debug: { matchedPathname: match.pathname, blobUploadedAt: match.uploadedAt, blobSize: match.size, candidateCount: candidates.length } });
+      return res.status(200).json({ exists: true, data });
     } catch (err) {
       console.error("Store GET error:", err);
       return res.status(500).json({ error: "No se pudo cargar el catálogo", debug: String(err) });
@@ -37,8 +37,7 @@ export default async function handler(req, res) {
         addRandomSuffix: false,
         cacheControlMaxAge: 0,
       });
-      console.log("BLOB PUT OK:", JSON.stringify({ pathname: result.pathname, url: result.url }));
-      return res.status(200).json({ ok: true, debug: { pathname: result.pathname, url: result.url } });
+      return res.status(200).json({ ok: true });
     } catch (err) {
       console.error("Store POST error:", err);
       return res.status(500).json({ error: "No se pudo guardar", debug: String(err) });
