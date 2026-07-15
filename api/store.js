@@ -9,7 +9,7 @@ export default async function handler(req, res) {
       const { blobs } = await list({ prefix: LIST_PREFIX });
       const match = blobs.find((b) => b.pathname === BLOB_PATH) || blobs.find((b) => b.pathname.startsWith("kenis4pets/store-data"));
       if (!match) return res.status(200).json({ exists: false, debug: { allPathnames: blobs.map((b) => b.pathname), hasToken: !!process.env.BLOB_READ_WRITE_TOKEN } });
-      const r = await fetch(match.url, { cache: "no-store" });
+      const r = await fetch(`${match.url}?t=${Date.now()}`, { cache: "no-store" });
       const data = await r.json();
       return res.status(200).json({ exists: true, data, debug: { matchedPathname: match.pathname } });
     } catch (err) {
@@ -34,6 +34,7 @@ export default async function handler(req, res) {
         contentType: "application/json",
         allowOverwrite: true,
         addRandomSuffix: false,
+        cacheControlMaxAge: 0,
       });
       console.log("BLOB PUT OK:", JSON.stringify({ pathname: result.pathname, url: result.url }));
       return res.status(200).json({ ok: true, debug: { pathname: result.pathname, url: result.url } });
