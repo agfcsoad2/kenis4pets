@@ -11,7 +11,7 @@ export default async function handler(req, res) {
       if (!match) return res.status(200).json({ exists: false, debug: { allPathnames: blobs.map((b) => b.pathname), hasToken: !!process.env.BLOB_READ_WRITE_TOKEN } });
       const r = await fetch(`${match.url}?t=${Date.now()}`, { cache: "no-store" });
       const data = await r.json();
-      return res.status(200).json({ exists: true, data, debug: { matchedPathname: match.pathname } });
+      return res.status(200).json({ exists: true, data, debug: { matchedPathname: match.pathname, blobUploadedAt: match.uploadedAt, blobSize: match.size } });
     } catch (err) {
       console.error("Store GET error:", err);
       return res.status(500).json({ error: "No se pudo cargar el catálogo", debug: String(err) });
