@@ -7,13 +7,13 @@ export default async function handler(req, res) {
     try {
       const { blobs } = await list({ prefix: BLOB_PATH });
       const match = blobs.find((b) => b.pathname === BLOB_PATH);
-      if (!match) return res.status(200).json({ exists: false });
+      if (!match) return res.status(200).json({ exists: false, debug: { allPathnames: blobs.map((b) => b.pathname), hasToken: !!process.env.BLOB_READ_WRITE_TOKEN } });
       const r = await fetch(match.url, { cache: "no-store" });
       const data = await r.json();
       return res.status(200).json({ exists: true, data });
     } catch (err) {
       console.error("Store GET error:", err);
-      return res.status(500).json({ error: "No se pudo cargar el catálogo" });
+      return res.status(500).json({ error: "No se pudo cargar el catálogo", debug: String(err) });
     }
   }
 
@@ -28,15 +28,15 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Datos incompletos" });
       }
       const json = JSON.stringify({ products, categories, config, updatedAt: new Date().toISOString() });
-      await put(BLOB_PATH, json, {
+      const result = await put(BLOB_PATH, json, {
         access: "public",
         contentType: "application/json",
         allowOverwrite: true,
       });
-      return res.status(200).json({ ok: true });
+      return res.status(200).json({ ok: true, debug: { pathname: result.pathname, url: result.url } });
     } catch (err) {
       console.error("Store POST error:", err);
-      return res.status(500).json({ error: "No se pudo guardar" });
+      return res.status(500).json({ error: "No se pudo guardar", debug: String(err) });
     }
   }
 
