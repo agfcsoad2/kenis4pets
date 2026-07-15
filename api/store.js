@@ -7,11 +7,12 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     try {
       const { blobs } = await list({ prefix: LIST_PREFIX });
-      const match = blobs.find((b) => b.pathname === BLOB_PATH) || blobs.find((b) => b.pathname.startsWith("kenis4pets/store-data"));
+      const candidates = blobs.filter((b) => b.pathname === BLOB_PATH || b.pathname.startsWith("kenis4pets/store-data"));
+      const match = candidates.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt))[0];
       if (!match) return res.status(200).json({ exists: false, debug: { allPathnames: blobs.map((b) => b.pathname), hasToken: !!process.env.BLOB_READ_WRITE_TOKEN } });
       const r = await fetch(`${match.url}?t=${Date.now()}`, { cache: "no-store" });
       const data = await r.json();
-      return res.status(200).json({ exists: true, data, debug: { matchedPathname: match.pathname, blobUploadedAt: match.uploadedAt, blobSize: match.size } });
+      return res.status(200).json({ exists: true, data, debug: { matchedPathname: match.pathname, blobUploadedAt: match.uploadedAt, blobSize: match.size, candidateCount: candidates.length } });
     } catch (err) {
       console.error("Store GET error:", err);
       return res.status(500).json({ error: "No se pudo cargar el catálogo", debug: String(err) });
