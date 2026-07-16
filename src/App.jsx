@@ -21,6 +21,7 @@ const DEFAULT_CONFIG = {
   footer: { text: "🐾 Kenis4Pets © 2026 — Hecho con amor para tus mascotas", show: true },
   nav: { showHome: true, showAdmin: true, showCart: true },
   sections: { showFeatured: true, showSearch: true, showCategories: true, featuredTitle: "⭐ Destacados", catalogTitle: "🛍️ Catálogo" },
+  adminPin: "1234",
 };
 
 const DEFAULT_CATEGORIES = ["Collares", "Ropa", "Juguetes", "Camas", "Accesorios"];
@@ -120,43 +121,7 @@ export default function Kenis4Pets() {
   const [showCart, setShowCart] = useState(false);
   const [notification, setNotification] = useState(null);
   const [adminAuth, setAdminAuth] = useState(false);
-  const [adminPinValue, setAdminPinValue] = useState("");
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const [dataLoaded, setDataLoaded] = useState(false);
-  const [syncStatus, setSyncStatus] = useState(""); // "", "saving", "saved", "error"
-  const hydrated = useRef(false);
-
-  // Cargar catálogo real desde el servidor (Vercel Blob) al arrancar
-  useEffect(() => {
-    fetch("/api/store")
-      .then((r) => r.json())
-      .then((res) => {
-        if (res.exists && res.data) {
-          if (res.data.products) setProducts(res.data.products);
-          if (res.data.categories) setCategories(res.data.categories);
-          if (res.data.config) setConfig((prev) => ({ ...prev, ...res.data.config }));
-        }
-      })
-      .catch((err) => console.error("No se pudo cargar el catálogo remoto:", err))
-      .finally(() => { hydrated.current = true; setDataLoaded(true); });
-  }, []);
-
-  // Guardar automáticamente cualquier cambio del admin (productos, categorías, config)
-  useEffect(() => {
-    if (!hydrated.current || !adminAuth || !adminPinValue) return;
-    setSyncStatus("saving");
-    const t = setTimeout(() => {
-      fetch("/api/store", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-admin-pin": adminPinValue },
-        body: JSON.stringify({ products, categories, config }),
-      })
-        .then((r) => r.json())
-        .then((res) => setSyncStatus(res.ok ? "saved" : "error"))
-        .catch(() => setSyncStatus("error"));
-    }, 700);
-    return () => clearTimeout(t);
-  }, [products, categories, config, adminAuth, adminPinValue]);
 
   // Al volver de Stripe Checkout, Stripe añade ?checkout=success o ?checkout=cancel
   useEffect(() => {
@@ -260,7 +225,7 @@ export default function Kenis4Pets() {
         {page === "home" && selectedProduct && <ProductDetail product={selectedProduct} addToCart={addToCart} goBack={() => setSelectedProduct(null)} C={C} grad={dyn.grad} />}
         {page === "checkout" && !orderPlaced && <CheckoutPage cart={cart} cartTotal={cartTotal} onOrder={() => { setOrderPlaced(true); dispatch({ type: "CLEAR" }); }} goBack={() => setPage("home")} C={C} grad={dyn.grad} />}
         {page === "checkout" && orderPlaced && <OrderConfirmation onContinue={() => { setOrderPlaced(false); setPage("home"); }} C={C} grad={dyn.grad} />}
-        {page === "admin" && <AdminPanel products={products} setProducts={setProducts} categories={categories} setCategories={setCategories} config={config} setConfig={setConfig} adminAuth={adminAuth} setAdminAuth={setAdminAuth} adminPinValue={adminPinValue} setAdminPinValue={setAdminPinValue} syncStatus={syncStatus} />}
+        {page === "admin" && <AdminPanel products={products} setProducts={setProducts} categories={categories} setCategories={setCategories} config={config} setConfig={setConfig} adminAuth={adminAuth} setAdminAuth={setAdminAuth} />}
       </main>
 
       {config.footer.show && <footer style={ST.footer}><p>{config.footer.text}</p></footer>}
@@ -307,7 +272,7 @@ function CheckoutPage({ cart, cartTotal, onOrder, goBack, C, grad }) {
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ cart, customer: { email: form.email, name: form.name } }),
+        body: JSON.stringify({ cart, customer: { email: form.email, name: form.name } }),
       });
       const data = await res.json();
       if (!res.ok || !data.url) throw new Error(data.error || "Error al iniciar el pago");
@@ -344,10 +309,8 @@ function OrderConfirmation({ onContinue, C, grad }) {
 /* ═══════════════════════════════════════════
    ADMIN CMS PANEL
    ═══════════════════════════════════════════ */
-function AdminPanel({ products, setProducts, categories, setCategories, config, setConfig, adminAuth, setAdminAuth, adminPinValue, setAdminPinValue, syncStatus }) {
+function AdminPanel({ products, setProducts, categories, setCategories, config, setConfig, adminAuth, setAdminAuth }) {
   const [pin, setPin] = useState("");
-  const [loginError, setLoginError] = useState("");
-  const [checking, setChecking] = useState(false);
   const [tab, setTab] = useState("products");
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({});
@@ -362,21 +325,7 @@ function AdminPanel({ products, setProducts, categories, setCategories, config, 
     for (let i = 0; i < k.length - 1; i++) r = r[k[i]]; r[k[k.length - 1]] = val; return c;
   });
 
-  const tryLogin = async () => {
-    setChecking(true); setLoginError("");
-    try {
-      const r = await fetch("/api/verify-pin", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pin }) });
-      const data = await r.json();
-      if (data.ok) { setAdminPinValue(pin); setAdminAuth(true); }
-      else setLoginError("❌ PIN incorrecto");
-    } catch {
-      setLoginError("❌ No se pudo verificar el PIN");
-    } finally {
-      setChecking(false);
-    }
-  };
-
-  if (!adminAuth) return <div style={ST.adminLogin}><div style={ST.adminLoginCard}><span style={{ fontSize: 48 }}>🔐</span><h2 style={{ margin: "12px 0 4px" }}>Panel Admin</h2><p style={{ fontSize: 13, color: "#888", margin: "0 0 16px" }}>Introduce el PIN de administrador</p><input style={ST.input} type="password" placeholder="PIN" maxLength={6} value={pin} onChange={(e) => setPin(e.target.value)} onKeyDown={(e) => e.key === "Enter" && tryLogin()} />{loginError && <p style={{ color: "#E11D48", fontSize: 13, margin: "0 0 10px" }}>{loginError}</p>}<button style={ST.nextBtn} onClick={tryLogin} disabled={checking}>{checking ? "Verificando..." : "Entrar"}</button></div></div>;
+  if (!adminAuth) return <div style={ST.adminLogin}><div style={ST.adminLoginCard}><span style={{ fontSize: 48 }}>🔐</span><h2 style={{ margin: "12px 0 4px" }}>Panel Admin</h2><p style={{ fontSize: 13, color: "#888", margin: "0 0 16px" }}>PIN: {config.adminPin} (demo)</p><input style={ST.input} type="password" placeholder="PIN" maxLength={6} value={pin} onChange={(e) => setPin(e.target.value)} /><button style={ST.nextBtn} onClick={() => { if (pin === config.adminPin) setAdminAuth(true); else alert("PIN incorrecto"); }}>Entrar</button></div></div>;
 
   const TABS = [
     { id: "products", icon: "📦", label: "Productos" },
@@ -391,12 +340,7 @@ function AdminPanel({ products, setProducts, categories, setCategories, config, 
 
   return <div style={{ padding: "16px 0", position: "relative" }}>
     {saved && <div style={ST.savedToast}>{saved}</div>}
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-      <h2 style={{ margin: 0, fontSize: 20, fontWeight: 900 }}>⚙️ Panel de Administración</h2>
-      <span style={{ fontSize: 11, fontWeight: 700, color: syncStatus === "error" ? "#E11D48" : syncStatus === "saving" ? "#888" : "#16A34A" }}>
-        {syncStatus === "saving" ? "☁️ Guardando..." : syncStatus === "error" ? "❌ Error al guardar" : syncStatus === "saved" ? "☁️ Guardado" : ""}
-      </span>
-    </div>
+    <h2 style={{ margin: "0 0 16px", fontSize: 20, fontWeight: 900 }}>⚙️ Panel de Administración</h2>
     <div style={ST.tabNav}>{TABS.map((t) => <button key={t.id} style={tab === t.id ? ST.tabActive : ST.tabInactive} onClick={() => setTab(t.id)}><span style={{ fontSize: 16 }}>{t.icon}</span><span style={{ fontSize: 11 }}>{t.label}</span></button>)}</div>
 
     {/* PRODUCTS */}
@@ -483,15 +427,9 @@ function AdminPanel({ products, setProducts, categories, setCategories, config, 
 
     {/* SETTINGS */}
     {tab === "settings" && <div style={ST.formCard}><h3 style={ST.formTitle}>🔒 Configuración</h3>
-      <div style={ST.previewBox}><p style={{ margin: 0, fontSize: 13, color: "#555" }}>El PIN de administrador se gestiona desde la variable de entorno <code>ADMIN_PIN</code> en Vercel, no aquí — así nunca queda expuesto en el catálogo público.</p></div>
-      <div style={{ ...ST.previewBox, marginTop: 12, background: "#F0FDF4", borderColor: "#BBF7D0" }}>
-        <p style={{ margin: 0, fontSize: 13, color: "#166534" }}>
-          {syncStatus === "saving" && "☁️ Guardando cambios..."}
-          {syncStatus === "saved" && "✅ Todo guardado en la nube — visible para cualquier visitante"}
-          {syncStatus === "error" && "❌ Error al guardar. Revisa tu conexión e inténtalo de nuevo."}
-          {!syncStatus && "Los cambios se guardan automáticamente."}
-        </p>
-      </div>
+      <label style={ST.fLabel}>PIN de Administrador</label><input style={ST.input} value={config.adminPin} onChange={(e) => uc("adminPin", e.target.value)} maxLength={6} />
+      <div style={{ ...ST.previewBox, background: "#FFF5F5", borderColor: "#FFCCCC" }}><p style={{ margin: 0, fontSize: 13, color: "#CC0000" }}>⚠️ Si cambias el PIN, recuérdalo.</p></div>
+      <button style={ST.saveBtn} onClick={() => flash("✅ PIN actualizado")}>💾 Guardar</button>
     </div>}
 
     <button style={{ ...ST.prevBtn, marginTop: 24, width: "100%" }} onClick={() => setAdminAuth(false)}>🔒 Cerrar Sesión</button>
@@ -620,4 +558,3 @@ const ST = {
   imgErrorBox: { background: "#FFF0F0", border: "2px solid #FF4444", borderRadius: 12, padding: "12px 14px", marginBottom: 10 },
   imgErrorText: { margin: 0, color: "#CC0000", fontSize: 13, fontWeight: 700, lineHeight: 1.4 },
 };
-
