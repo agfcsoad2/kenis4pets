@@ -9,13 +9,13 @@ const DEFAULT_CONFIG = {
     show: true,
   },
   colors: {
-    primary: "#FF6B6B",
-    secondary: "#A855F7",
-    accent: "#4ECDC4",
-    highlight: "#FFE66D",
-    background: "#FFF9F0",
-    headerGradient: ["#FF6B6B", "#FF8FA3", "#A855F7"],
-    heroGradient: ["#FFE66D", "#FDBA74", "#FF8FA3"],
+    primary: "#E15A45",
+    secondary: "#2B2118",
+    accent: "#3D8F87",
+    highlight: "#E8A94A",
+    background: "#FBF7EF",
+    headerGradient: ["#E15A45", "#E15A45", "#E15A45"],
+    heroGradient: ["#FBF7EF", "#FBF7EF", "#FBF7EF"],
   },
   footer: { text: "Kenis4Pets © 2026 — Hecho con amor para tus mascotas", show: true },
   nav: { showHome: true, showAdmin: true, showCart: true },
@@ -198,12 +198,12 @@ export default function Kenis4Pets() {
   const filtered = products.filter((p) => (selectedCategory === "Todos" || p.category === selectedCategory) && p.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const dyn = {
-    header: { background: `linear-gradient(135deg, ${C.headerGradient[0]}, ${C.headerGradient[1]}, ${C.headerGradient[2]})`, padding: 0, position: "sticky", top: 0, zIndex: 100, boxShadow: `0 4px 20px ${C.primary}44` },
-    hero: { background: `linear-gradient(135deg, ${C.heroGradient[0]} 0%, ${C.heroGradient[1]} 40%, ${C.heroGradient[2]} 100%)`, borderRadius: 24, padding: "32px 24px", margin: "16px 0", position: "relative", overflow: "hidden" },
+    header: { background: `linear-gradient(135deg, ${C.headerGradient[0]}, ${C.headerGradient[1]}, ${C.headerGradient[2]})`, padding: 0, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 1px 0 rgba(0,0,0,0.08)" },
+    hero: { background: "transparent", borderTop: `1px solid ${C.primary}33`, borderBottom: `1px solid ${C.primary}33`, padding: "36px 4px", margin: "8px 0 24px", position: "relative" },
     app: { fontFamily: "'Inter','Segoe UI',sans-serif", background: C.background, minHeight: "100vh", color: "#333", position: "relative" },
-    catActive: { whiteSpace: "nowrap", background: `linear-gradient(135deg, ${C.primary}, ${C.secondary})`, border: "2px solid transparent", borderRadius: 50, padding: "8px 16px", fontSize: 13, fontWeight: 700, color: "#fff", cursor: "pointer" },
-    addBtn: { background: `linear-gradient(135deg, ${C.primary}, ${C.secondary})`, color: "#fff", border: "none", borderRadius: 10, padding: "8px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 },
-    badge: { position: "absolute", top: -4, right: -4, background: C.highlight, color: "#333", borderRadius: 50, width: 20, height: 20, fontSize: 11, fontWeight: 900, display: "flex", alignItems: "center", justifyContent: "center", border: `2px solid ${C.primary}` },
+    catActive: { whiteSpace: "nowrap", background: C.primary, border: `1px solid ${C.primary}`, borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer" },
+    addBtn: { background: C.primary, color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 },
+    badge: { position: "absolute", top: -4, right: -4, background: C.highlight, color: "#2B2118", borderRadius: 50, width: 20, height: 20, fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: `2px solid ${C.primary}` },
     grad: `linear-gradient(135deg, ${C.primary}, ${C.secondary})`,
   };
 
@@ -255,7 +255,7 @@ export default function Kenis4Pets() {
           {config.hero.show && <div style={dyn.hero}><div style={{ position: "relative", zIndex: 2 }}><h2 style={ST.heroTitle}>{config.hero.title}</h2><p style={ST.heroSub}>{config.hero.subtitle}</p></div></div>}
 
           {config.sections.showFeatured && products.some((p) => p.featured) && <section style={ST.section}><h3 style={ST.sectionTitle}>{config.sections.featuredTitle}</h3><div style={ST.featuredScroll}>{products.filter((p) => p.featured).map((p) => (
-            <div key={p.id} style={ST.featuredCard} onClick={() => setSelectedProduct(p)}><div style={{ marginBottom: 8 }}><ProductImage src={p.image} size={50} /></div><p style={ST.featuredName}>{p.name}</p><p style={{ ...ST.featuredPrice, color: C.primary }}>${p.price.toFixed(2)}</p><button style={{ ...ST.smallBtn, background: C.accent }} onClick={(e) => { e.stopPropagation(); addToCart(p); }}>+ Carrito</button></div>
+            <div key={p.id} style={ST.featuredCard} onClick={() => setSelectedProduct(p)}><div style={{ marginBottom: 8 }}><ProductImage src={p.image} size={50} /></div><p style={ST.featuredName}>{p.name}</p><p style={{ ...ST.featuredPrice, color: C.primary }}>${p.price.toFixed(2)}</p><button style={{ ...ST.smallBtn, background: C.accent }} onClick={(e) => { e.stopPropagation(); addToCart(p); }}>Añadir</button></div>
           ))}</div></section>}
 
           <section style={ST.section}>
@@ -509,6 +509,10 @@ function AdminPanel({ products, setProducts, categories, setCategories, config, 
           {!syncStatus && "Los cambios se guardan automáticamente."}
         </p>
       </div>
+      <div style={{ ...ST.previewBox, marginTop: 12 }}>
+        <p style={{ margin: "0 0 10px", fontSize: 13, color: "#555" }}>Restablece colores, textos del hero, secciones y footer al diseño más reciente del código (útil tras una actualización de diseño). Tu nombre de marca, slogan y logo se mantienen.</p>
+        <button style={{ ...ST.saveBtn, background: "#2B2118" }} onClick={() => { if (confirm("¿Restablecer el diseño (colores, hero, secciones, footer) a los valores por defecto? Tu marca y logo se conservan.")) { setConfig((prev) => ({ ...DEFAULT_CONFIG, brand: prev.brand })); flash("✅ Diseño restablecido"); } }}>Restablecer diseño por defecto</button>
+      </div>
     </div>}
 
     <button style={{ ...ST.prevBtn, marginTop: 24, width: "100%" }} onClick={() => setAdminAuth(false)}>🔒 Cerrar Sesión</button>
@@ -517,7 +521,7 @@ function AdminPanel({ products, setProducts, categories, setCategories, config, 
 
 /* ═══════════════ STYLES ═══════════════ */
 const ST = {
-  toast: { position: "fixed", top: 20, left: "50%", transform: "translateX(-50%)", background: "#4ECDC4", color: "#fff", padding: "10px 20px", borderRadius: 50, fontSize: 14, fontWeight: 700, zIndex: 9999, boxShadow: "0 4px 15px rgba(78,205,196,0.4)", animation: "slideDown 0.4s ease" },
+  toast: { position: "fixed", top: 20, left: "50%", transform: "translateX(-50%)", background: "#2B2118", color: "#fff", padding: "10px 20px", borderRadius: 10, fontSize: 14, fontWeight: 500, zIndex: 9999, boxShadow: "0 4px 15px rgba(0,0,0,0.15)", animation: "slideDown 0.4s ease" },
   savedToast: { position: "fixed", top: 20, left: "50%", transform: "translateX(-50%)", background: "#22C55E", color: "#fff", padding: "10px 20px", borderRadius: 50, fontSize: 14, fontWeight: 700, zIndex: 9999, animation: "slideDown 0.4s ease" },
   headerInner: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", maxWidth: 900, margin: "0 auto" },
   logoArea: { display: "flex", alignItems: "center", gap: 10, cursor: "pointer" },
@@ -525,8 +529,8 @@ const ST = {
   logoText: { margin: 0, fontSize: 21, fontWeight: 700, fontFamily: "'Poppins',sans-serif", color: "#fff", letterSpacing: -0.3 },
   logoSub: { margin: 0, fontSize: 11, color: "rgba(255,255,255,0.85)", fontWeight: 600 },
   headerActions: { display: "flex", alignItems: "center", gap: 8 },
-  navBtn: { background: "rgba(255,255,255,0.2)", border: "none", borderRadius: 12, padding: "8px 12px", fontSize: 18, cursor: "pointer" },
-  cartBtn: { background: "rgba(255,255,255,0.25)", border: "none", borderRadius: 14, padding: "8px 14px", fontSize: 20, cursor: "pointer", position: "relative" },
+  navBtn: { background: "none", border: "none", padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center" },
+  cartBtn: { background: "none", border: "none", padding: "8px 10px", cursor: "pointer", position: "relative", display: "flex", alignItems: "center" },
   overlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 200, backdropFilter: "blur(4px)" },
   cartSidebar: { position: "absolute", right: 0, top: 0, bottom: 0, width: "min(360px, 90vw)", background: "#fff", boxShadow: "-5px 0 30px rgba(0,0,0,0.15)", display: "flex", flexDirection: "column", animation: "slideIn 0.3s ease" },
   cartHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "2px solid #f0f0f0" },
@@ -535,16 +539,16 @@ const ST = {
   emptyCart: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 40 },
   cartItems: { flex: 1, overflowY: "auto", padding: "12px 16px" },
   cartItem: { display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderBottom: "1px solid #f5f5f5" },
-  cartItemBox: { width: 50, height: 50, background: "#FFF0F0", borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center" },
+  cartItemBox: { width: 50, height: 50, background: "#FBF7EF", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" },
   cartItemName: { margin: 0, fontWeight: 700, fontSize: 14 },
   cartItemPrice: { margin: "2px 0 6px", fontSize: 13, fontWeight: 700 },
   removeBtn: { background: "none", border: "none", fontSize: 18, cursor: "pointer", opacity: 0.5 },
   cartFooter: { padding: "16px 20px", borderTop: "2px solid #f0f0f0", background: "#FAFAFA" },
   cartTotalRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
-  checkoutBtn: { width: "100%", color: "#fff", border: "none", borderRadius: 14, padding: "14px", fontSize: 16, fontWeight: 800, cursor: "pointer" },
+  checkoutBtn: { width: "100%", color: "#fff", border: "none", borderRadius: 10, padding: "14px", fontSize: 15, fontWeight: 600, cursor: "pointer" },
   main: { maxWidth: 900, margin: "0 auto", padding: "0 16px" },
-  heroTitle: { margin: "0 0 8px", fontSize: 26, fontWeight: 700, fontFamily: "'Poppins',sans-serif", color: "#5D3A1A", lineHeight: 1.25, letterSpacing: -0.3 },
-  heroSub: { margin: 0, fontSize: 14, color: "#7A4B2A", fontWeight: 600, lineHeight: 1.4 },
+  heroTitle: { margin: "0 0 10px", fontSize: 28, fontWeight: 700, fontFamily: "'Poppins',sans-serif", color: "#2B2118", lineHeight: 1.25, letterSpacing: -0.3 },
+  heroSub: { margin: 0, fontSize: 15, color: "#6B6255", fontWeight: 400, lineHeight: 1.5, maxWidth: 440 },
   heroEmojis: { display: "flex", gap: 10, marginTop: 16 },
   heroEmoji: { fontSize: 32, animation: "float 2s ease-in-out infinite" },
   bubble1: { position: "absolute", width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.2)", top: -30, right: -20 },
@@ -553,26 +557,26 @@ const ST = {
   section: { marginBottom: 24 },
   sectionTitle: { fontSize: 18, fontWeight: 700, fontFamily: "'Poppins',sans-serif", margin: "20px 0 12px" },
   featuredScroll: { display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8, WebkitOverflowScrolling: "touch" },
-  featuredCard: { minWidth: 140, background: "#fff", borderRadius: 16, padding: "16px 12px", textAlign: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", border: "2px solid #FFF0F0", cursor: "pointer" },
+  featuredCard: { minWidth: 140, background: "#fff", borderRadius: 12, padding: "16px 12px", textAlign: "center", border: "1px solid #EFE9DC", cursor: "pointer" },
   featuredName: { margin: "0 0 4px", fontWeight: 600, fontFamily: "'Poppins',sans-serif", fontSize: 13 },
   featuredPrice: { margin: "0 0 8px", fontWeight: 800, fontSize: 16 },
-  smallBtn: { color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer" },
+  smallBtn: { color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" },
   searchBar: { display: "flex", alignItems: "center", gap: 8, background: "#fff", borderRadius: 14, padding: "4px 12px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", border: "2px solid #f0f0f0", marginBottom: 12 },
   searchInput: { flex: 1, border: "none", outline: "none", padding: "10px 0", fontSize: 15, fontFamily: "inherit", background: "transparent" },
   catRow: { display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 },
-  catBtn: { whiteSpace: "nowrap", background: "#fff", border: "2px solid #eee", borderRadius: 50, padding: "8px 16px", fontSize: 13, fontWeight: 700, color: "#888", cursor: "pointer" },
+  catBtn: { whiteSpace: "nowrap", background: "#fff", border: "1px solid #E8E1D3", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 500, color: "#6B6255", cursor: "pointer" },
   grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 14 },
-  card: { background: "#fff", borderRadius: 16, overflow: "hidden", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", cursor: "pointer" },
-  cardImg: { padding: "24px 0", textAlign: "center", background: "linear-gradient(180deg, #FFF5F5, #fff)" },
+  card: { background: "#fff", borderRadius: 12, overflow: "hidden", border: "1px solid #EFE9DC", cursor: "pointer" },
+  cardImg: { padding: "24px 0", textAlign: "center", background: "#FBF7EF" },
   cardInfo: { padding: "12px 16px 16px" },
   cardCat: { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5 },
   cardName: { margin: "4px 0 6px", fontSize: 16, fontWeight: 600, fontFamily: "'Poppins',sans-serif" },
   cardDesc: { margin: "0 0 12px", fontSize: 13, color: "#888", lineHeight: 1.4 },
   cardBot: { display: "flex", justifyContent: "space-between", alignItems: "center" },
   backBtn: { background: "none", border: "none", color: "#FF6B6B", fontSize: 15, fontWeight: 700, cursor: "pointer", padding: "4px 0", marginBottom: 12 },
-  detailCard: { background: "#fff", borderRadius: 20, overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" },
-  detailImgBox: { textAlign: "center", padding: "40px 0", background: "linear-gradient(180deg, #FFF0F0, #FFF5FF)" },
-  lgBtn: { width: "100%", color: "#fff", border: "none", borderRadius: 14, padding: "16px", fontSize: 16, fontWeight: 800, cursor: "pointer" },
+  detailCard: { background: "#fff", borderRadius: 14, overflow: "hidden", border: "1px solid #EFE9DC" },
+  detailImgBox: { textAlign: "center", padding: "40px 0", background: "#FBF7EF" },
+  lgBtn: { width: "100%", color: "#fff", border: "none", borderRadius: 10, padding: "16px", fontSize: 16, fontWeight: 600, cursor: "pointer" },
   qtyRow: { display: "flex", alignItems: "center", gap: 8 },
   qtyBtn: { width: 32, height: 32, borderRadius: 10, border: "2px solid #eee", background: "#fff", fontSize: 18, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" },
   qtyNum: { fontSize: 16, fontWeight: 800, minWidth: 24, textAlign: "center" },
@@ -581,13 +585,13 @@ const ST = {
   stepDone: { width: 28, height: 28, borderRadius: 50, background: "#4ECDC4", color: "#fff", fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" },
   stepPending: { width: 28, height: 28, borderRadius: 50, background: "#eee", color: "#bbb", fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" },
   stepLine: { width: 20, height: 2, background: "#eee", borderRadius: 2 },
-  formCard: { background: "#fff", borderRadius: 20, padding: "20px", boxShadow: "0 2px 15px rgba(0,0,0,0.06)", marginBottom: 16 },
+  formCard: { background: "#fff", borderRadius: 14, padding: "20px", border: "1px solid #EFE9DC", marginBottom: 16 },
   formTitle: { margin: "0 0 14px", fontSize: 17, fontWeight: 800 },
   input: { width: "100%", padding: "12px 14px", border: "2px solid #eee", borderRadius: 12, fontSize: 15, fontFamily: "inherit", outline: "none", marginBottom: 10, boxSizing: "border-box" },
   inputSm: { padding: "8px 10px", border: "2px solid #eee", borderRadius: 8, fontSize: 13, fontFamily: "inherit", outline: "none", boxSizing: "border-box" },
   btnRow: { display: "flex", gap: 10, marginTop: 8 },
-  nextBtn: { flex: 1, background: "linear-gradient(135deg, #FF6B6B, #FF8FA3)", color: "#fff", border: "none", borderRadius: 12, padding: "13px", fontSize: 15, fontWeight: 700, cursor: "pointer" },
-  prevBtn: { background: "#f5f5f5", color: "#888", border: "none", borderRadius: 12, padding: "13px 20px", fontSize: 14, fontWeight: 700, cursor: "pointer" },
+  nextBtn: { flex: 1, background: "#E15A45", color: "#fff", border: "none", borderRadius: 10, padding: "13px", fontSize: 15, fontWeight: 600, cursor: "pointer" },
+  prevBtn: { background: "#F5F1E8", color: "#6B6255", border: "none", borderRadius: 10, padding: "13px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer" },
   payBtn: { flex: 1, background: "#f5f5f5", border: "2px solid #eee", borderRadius: 12, padding: "12px 8px", fontSize: 13, fontWeight: 700, cursor: "pointer", textAlign: "center" },
   payActive: { flex: 1, background: "#FFF0F0", border: "2px solid", borderRadius: 12, padding: "12px 8px", fontSize: 13, fontWeight: 700, cursor: "pointer", textAlign: "center" },
   sumRow: { display: "flex", justifyContent: "space-between", fontSize: 13, padding: "4px 0", color: "#555" },
