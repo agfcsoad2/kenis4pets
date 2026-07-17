@@ -139,6 +139,7 @@ export default function Kenis4Pets() {
   const [adminPinValue, setAdminPinValue] = useState("");
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const catalogRef = useRef(null);
   const [syncStatus, setSyncStatus] = useState(""); // "", "saving", "saved", "error"
   const hydrated = useRef(false);
 
@@ -198,29 +199,32 @@ export default function Kenis4Pets() {
   const filtered = products.filter((p) => (selectedCategory === "Todos" || p.category === selectedCategory) && p.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const dyn = {
-    header: { background: `linear-gradient(135deg, ${C.headerGradient[0]}, ${C.headerGradient[1]}, ${C.headerGradient[2]})`, padding: 0, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 1px 0 rgba(0,0,0,0.08)" },
-    hero: { background: "transparent", borderTop: `1px solid ${C.primary}33`, borderBottom: `1px solid ${C.primary}33`, padding: "36px 4px", margin: "8px 0 24px", position: "relative" },
+    header: { background: "rgba(251,247,239,0.85)", padding: 0, position: "sticky", top: 0, zIndex: 100, borderBottom: "1px solid rgba(43,33,24,0.08)" },
+    hero: { background: "transparent", borderTop: `1px solid ${C.primary}33`, borderBottom: `1px solid ${C.primary}33`, padding: "44px 4px", margin: "8px 0 24px", position: "relative", overflow: "hidden" },
     app: { fontFamily: "'Inter','Segoe UI',sans-serif", background: C.background, minHeight: "100vh", color: "#333", position: "relative" },
     catActive: { whiteSpace: "nowrap", background: C.primary, border: `1px solid ${C.primary}`, borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer" },
     addBtn: { background: C.primary, color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 },
     badge: { position: "absolute", top: -4, right: -4, background: C.highlight, color: "#2B2118", borderRadius: 50, width: 20, height: 20, fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: `2px solid ${C.primary}` },
     grad: `linear-gradient(135deg, ${C.primary}, ${C.secondary})`,
+    heroGlow: { position: "absolute", inset: 0, background: `radial-gradient(ellipse 70% 80% at 15% 30%, ${C.primary}14 0%, transparent 65%)`, pointerEvents: "none" },
+    heroTag: { display: "inline-block", fontSize: 11, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase", color: C.primary, border: `1px solid ${C.primary}44`, padding: "5px 12px", borderRadius: 20, marginBottom: 16 },
+    eyebrow: { display: "block", fontSize: 11, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase", color: C.primary, marginTop: 20 },
   };
 
   return (
     <div style={dyn.app}>
       {notification && <div style={ST.toast}><span>{notification}</span></div>}
 
-      <header style={dyn.header}>
+      <header style={dyn.header} className="k4p-header">
         <div style={ST.headerInner}>
           <div style={ST.logoArea} onClick={() => { setPage("home"); setShowCart(false); setSelectedProduct(null); }}>
             <ProductImage src={config.brand.icon} size={42} style={ST.logoIcon} />
             <div><h1 style={ST.logoText}>{config.brand.name}</h1><p style={ST.logoSub}>{config.brand.slogan}</p></div>
           </div>
           <div style={ST.headerActions}>
-            {config.nav.showHome && <button style={ST.navBtn} onClick={() => { setPage("home"); setShowCart(false); setSelectedProduct(null); }}><IconHome color="#fff" size={19} /></button>}
-            {config.nav.showAdmin && <button style={ST.navBtn} onClick={() => { setPage("admin"); setShowCart(false); }}><IconSettings color="#fff" size={19} /></button>}
-            {config.nav.showCart && <button style={ST.cartBtn} onClick={() => setShowCart(!showCart)}><IconCart color="#fff" size={19} />{cartCount > 0 && <span style={dyn.badge}>{cartCount}</span>}</button>}
+            {config.nav.showHome && <button style={ST.navBtn} onClick={() => { setPage("home"); setShowCart(false); setSelectedProduct(null); }}><IconHome color="#2B2118" size={19} /></button>}
+            {config.nav.showAdmin && <button style={ST.navBtn} onClick={() => { setPage("admin"); setShowCart(false); }}><IconSettings color="#2B2118" size={19} /></button>}
+            {config.nav.showCart && <button style={ST.cartBtn} onClick={() => setShowCart(!showCart)}><IconCart color="#2B2118" size={19} />{cartCount > 0 && <span style={dyn.badge}>{cartCount}</span>}</button>}
           </div>
         </div>
       </header>
@@ -252,10 +256,18 @@ export default function Kenis4Pets() {
 
       <main style={ST.main}>
         {page === "home" && !selectedProduct && <div>
-          {config.hero.show && <div style={dyn.hero}><div style={{ position: "relative", zIndex: 2 }}><h2 style={ST.heroTitle}>{config.hero.title}</h2><p style={ST.heroSub}>{config.hero.subtitle}</p></div></div>}
+          {config.hero.show && <div style={dyn.hero}>
+            <div style={dyn.heroGlow} />
+            <div style={{ position: "relative", zIndex: 2 }}>
+              <span style={dyn.heroTag}>Accesorios para mascotas</span>
+              <h2 style={ST.heroTitle}>{config.hero.title}</h2>
+              <p style={ST.heroSub}>{config.hero.subtitle}</p>
+              <button style={ST.heroCta} onClick={() => catalogRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}>Ver catálogo</button>
+            </div>
+          </div>}
 
-          {config.sections.showFeatured && products.some((p) => p.featured) && <section style={ST.section}><h3 style={ST.sectionTitle}>{config.sections.featuredTitle}</h3><div style={ST.featuredScroll}>{products.filter((p) => p.featured).map((p) => (
-            <div key={p.id} style={ST.featuredCard} onClick={() => setSelectedProduct(p)}><div style={{ marginBottom: 8 }}><ProductImage src={p.image} size={50} /></div><p style={ST.featuredName}>{p.name}</p><p style={{ ...ST.featuredPrice, color: C.primary }}>${p.price.toFixed(2)}</p><button style={{ ...ST.smallBtn, background: C.accent }} onClick={(e) => { e.stopPropagation(); addToCart(p); }}>Añadir</button></div>
+          {config.sections.showFeatured && products.some((p) => p.featured) && <section style={ST.section}><span style={dyn.eyebrow}>Selección</span><h3 style={ST.sectionTitle}>{config.sections.featuredTitle}</h3><div style={ST.featuredScroll}>{products.filter((p) => p.featured).map((p) => (
+            <div key={p.id} style={ST.featuredCard} className="k4p-card" onClick={() => setSelectedProduct(p)}><div style={{ marginBottom: 8 }}><ProductImage src={p.image} size={50} /></div><p style={ST.featuredName}>{p.name}</p><p style={{ ...ST.featuredPrice, color: C.primary }}>${p.price.toFixed(2)}</p><button style={{ ...ST.smallBtn, background: C.accent }} onClick={(e) => { e.stopPropagation(); addToCart(p); }}>Añadir</button></div>
           ))}</div></section>}
 
           <section style={ST.section}>
@@ -263,9 +275,9 @@ export default function Kenis4Pets() {
             {config.sections.showCategories && <div style={ST.catRow}>{allCats.map((c) => <button key={c} style={selectedCategory === c ? dyn.catActive : ST.catBtn} onClick={() => setSelectedCategory(c)}>{c}</button>)}</div>}
           </section>
 
-          <section style={ST.section}><h3 style={ST.sectionTitle}>{config.sections.catalogTitle}</h3>
+          <section style={ST.section} ref={catalogRef}><span style={dyn.eyebrow}>Catálogo completo</span><h3 style={ST.sectionTitle}>{config.sections.catalogTitle}</h3>
             {filtered.length === 0 ? <div style={{ textAlign: "center", padding: 40, color: "#aaa" }}><IconSearch size={32} color="#ddd" /><p style={{ marginTop: 8 }}>Sin resultados</p></div> : <div style={ST.grid}>{filtered.map((p) => (
-              <div key={p.id} style={ST.card} onClick={() => setSelectedProduct(p)}>
+              <div key={p.id} style={ST.card} className="k4p-card" onClick={() => setSelectedProduct(p)}>
                 <div style={ST.cardImg}><ProductImage src={p.image} size={80} /></div>
                 <div style={ST.cardInfo}><span style={{ ...ST.cardCat, color: C.secondary }}>{p.category}</span><h4 style={ST.cardName}>{p.name}</h4><p style={ST.cardDesc}>{p.desc}</p><div style={ST.cardBot}><span style={{ fontSize: 18, fontWeight: 900, color: C.primary }}>${p.price.toFixed(2)}</span><button style={dyn.addBtn} onClick={(e) => { e.stopPropagation(); addToCart(p); }}><IconCart size={14} color="#fff" /> Añadir</button></div></div>
               </div>
@@ -526,8 +538,8 @@ const ST = {
   headerInner: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", maxWidth: 900, margin: "0 auto" },
   logoArea: { display: "flex", alignItems: "center", gap: 10, cursor: "pointer" },
   logoIcon: { fontSize: 32, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))" },
-  logoText: { margin: 0, fontSize: 21, fontWeight: 700, fontFamily: "'Poppins',sans-serif", color: "#fff", letterSpacing: -0.3 },
-  logoSub: { margin: 0, fontSize: 11, color: "rgba(255,255,255,0.85)", fontWeight: 600 },
+  logoText: { margin: 0, fontSize: 21, fontWeight: 700, fontFamily: "'Poppins',sans-serif", color: "#2B2118", letterSpacing: -0.3 },
+  logoSub: { margin: 0, fontSize: 11, color: "#8A8072", fontWeight: 500 },
   headerActions: { display: "flex", alignItems: "center", gap: 8 },
   navBtn: { background: "none", border: "none", padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center" },
   cartBtn: { background: "none", border: "none", padding: "8px 10px", cursor: "pointer", position: "relative", display: "flex", alignItems: "center" },
@@ -548,14 +560,15 @@ const ST = {
   checkoutBtn: { width: "100%", color: "#fff", border: "none", borderRadius: 10, padding: "14px", fontSize: 15, fontWeight: 600, cursor: "pointer" },
   main: { maxWidth: 900, margin: "0 auto", padding: "0 16px" },
   heroTitle: { margin: "0 0 10px", fontSize: 28, fontWeight: 700, fontFamily: "'Poppins',sans-serif", color: "#2B2118", lineHeight: 1.25, letterSpacing: -0.3 },
-  heroSub: { margin: 0, fontSize: 15, color: "#6B6255", fontWeight: 400, lineHeight: 1.5, maxWidth: 440 },
+  heroSub: { margin: "0 0 20px", fontSize: 15, color: "#6B6255", fontWeight: 400, lineHeight: 1.5, maxWidth: 440 },
+  heroCta: { background: "#2B2118", color: "#fff", border: "none", borderRadius: 10, padding: "12px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer" },
   heroEmojis: { display: "flex", gap: 10, marginTop: 16 },
   heroEmoji: { fontSize: 32, animation: "float 2s ease-in-out infinite" },
   bubble1: { position: "absolute", width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.2)", top: -30, right: -20 },
   bubble2: { position: "absolute", width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.15)", bottom: -20, right: 60 },
   bubble3: { position: "absolute", width: 50, height: 50, borderRadius: "50%", background: "rgba(255,255,255,0.25)", top: 10, right: 80 },
   section: { marginBottom: 24 },
-  sectionTitle: { fontSize: 18, fontWeight: 700, fontFamily: "'Poppins',sans-serif", margin: "20px 0 12px" },
+  sectionTitle: { fontSize: 18, fontWeight: 700, fontFamily: "'Poppins',sans-serif", margin: "6px 0 12px" },
   featuredScroll: { display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8, WebkitOverflowScrolling: "touch" },
   featuredCard: { minWidth: 140, background: "#fff", borderRadius: 12, padding: "16px 12px", textAlign: "center", border: "1px solid #EFE9DC", cursor: "pointer" },
   featuredName: { margin: "0 0 4px", fontWeight: 600, fontFamily: "'Poppins',sans-serif", fontSize: 13 },
