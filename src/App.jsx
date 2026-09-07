@@ -218,6 +218,7 @@ export default function PinaWoof() {
       <header style={dyn.header} className="k4p-header">
         <div style={ST.headerInner}>
           <div style={ST.logoArea} onClick={() => { setPage("home"); setShowCart(false); setSelectedProduct(null); }}>
+            <img src="/brand/pinawoof-dog.png" alt="" style={ST.headerIcon} />
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <img src="/brand/pinawoof-wordmark.png" alt={config.brand.name} style={ST.wordmarkImg} />
               <p style={ST.logoSub}>{config.brand.slogan}</p>
@@ -540,6 +541,7 @@ const ST = {
   savedToast: { position: "fixed", top: 20, left: "50%", transform: "translateX(-50%)", background: "#22C55E", color: "#fff", padding: "10px 20px", borderRadius: 50, fontSize: 14, fontWeight: 700, zIndex: 9999, animation: "slideDown 0.4s ease" },
   headerInner: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", maxWidth: 900, margin: "0 auto" },
   logoArea: { display: "flex", alignItems: "center", gap: 10, cursor: "pointer" },
+  headerIcon: { height: 40, width: "auto", display: "block" },
   wordmarkImg: { height: 24, width: "auto", display: "block" },
   footerLogo: { height: 16, width: "auto", opacity: 0.55, marginBottom: 8 },
   logoSub: { margin: 0, fontSize: 11, color: "#8A8072", fontWeight: 500 },
