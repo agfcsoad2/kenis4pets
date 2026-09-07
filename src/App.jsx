@@ -2,22 +2,22 @@ import { useState, useEffect, useReducer, useRef } from "react";
 
 /* ═══════════════ DEFAULT SITE CONFIG ═══════════════ */
 const DEFAULT_CONFIG = {
-  brand: { name: "Kenis4Pets", slogan: "Accesorios con amor", icon: "🐾" },
+  brand: { name: "PinaWoof", slogan: "Accesorios con amor", icon: "/brand/pinawoof-dog.png" },
   hero: {
     title: "Accesorios pensados para tu mascota",
     subtitle: "Piezas únicas, cómodas y hechas con cuidado para tu compañero de siempre",
     show: true,
   },
   colors: {
-    primary: "#E15A45",
-    secondary: "#2B2118",
-    accent: "#3D8F87",
-    highlight: "#E8A94A",
-    background: "#FBF7EF",
-    headerGradient: ["#E15A45", "#E15A45", "#E15A45"],
-    heroGradient: ["#FBF7EF", "#FBF7EF", "#FBF7EF"],
+    primary: "#9C3A4C",
+    secondary: "#1A1A1A",
+    accent: "#D49AA3",
+    highlight: "#D49AA3",
+    background: "#F5F2EC",
+    headerGradient: ["#9C3A4C", "#9C3A4C", "#9C3A4C"],
+    heroGradient: ["#F5F2EC", "#F5F2EC", "#F5F2EC"],
   },
-  footer: { text: "Kenis4Pets © 2026 — Hecho con amor para tus mascotas", show: true },
+  footer: { text: "PinaWoof © 2026 — Hecho con amor para tus mascotas", show: true },
   nav: { showHome: true, showAdmin: true, showCart: true },
   sections: { showFeatured: true, showSearch: true, showCategories: true, featuredTitle: "Destacados", catalogTitle: "Catálogo" },
 };
@@ -57,7 +57,7 @@ const IconArrowLeft = (p) => <Icon {...p} path={<><path d="M19 12H5M12 19l-7-7 7
 const IconArrowRight = (p) => <Icon {...p} path={<><path d="M5 12h14M12 5l7 7-7 7" /></>} />;
 
 /* ═══════════════ HELPERS ═══════════════ */
-const isUrl = (s) => s && (s.startsWith("http") || s.startsWith("data:"));
+const isUrl = (s) => s && (s.startsWith("http") || s.startsWith("data:") || s.startsWith("/"));
 
 const ProductImage = ({ src, size = 48, style: sx = {} }) =>
   isUrl(src)
@@ -124,7 +124,7 @@ function ImageUploader({ value, onChange, size = "normal" }) {
 }
 
 /* ═══════════════ MAIN APP ═══════════════ */
-export default function Kenis4Pets() {
+export default function PinaWoof() {
   const [page, setPage] = useState("home");
   const [cart, dispatch] = useReducer(cartReducer, []);
   const [products, setProducts] = useState(DEFAULT_PRODUCTS);
@@ -199,12 +199,12 @@ export default function Kenis4Pets() {
   const filtered = products.filter((p) => (selectedCategory === "Todos" || p.category === selectedCategory) && p.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   const dyn = {
-    header: { background: "rgba(251,247,239,0.85)", padding: 0, position: "sticky", top: 0, zIndex: 100, borderBottom: "1px solid rgba(43,33,24,0.08)" },
+    header: { background: "rgba(245,242,236,0.85)", padding: 0, position: "sticky", top: 0, zIndex: 100, borderBottom: "1px solid rgba(26,26,26,0.08)" },
     hero: { background: "transparent", borderTop: `1px solid ${C.primary}33`, borderBottom: `1px solid ${C.primary}33`, padding: "44px 4px", margin: "8px 0 24px", position: "relative", overflow: "hidden" },
-    app: { fontFamily: "'Inter','Segoe UI',sans-serif", background: C.background, minHeight: "100vh", color: "#333", position: "relative" },
+    app: { fontFamily: "'Poppins','Segoe UI',sans-serif", background: C.background, minHeight: "100vh", color: "#1A1A1A", position: "relative" },
     catActive: { whiteSpace: "nowrap", background: C.primary, border: `1px solid ${C.primary}`, borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer" },
     addBtn: { background: C.primary, color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 },
-    badge: { position: "absolute", top: -4, right: -4, background: C.highlight, color: "#2B2118", borderRadius: 50, width: 20, height: 20, fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: `2px solid ${C.primary}` },
+    badge: { position: "absolute", top: -4, right: -4, background: C.highlight, color: "#1A1A1A", borderRadius: 50, width: 20, height: 20, fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: `2px solid ${C.primary}` },
     grad: `linear-gradient(135deg, ${C.primary}, ${C.secondary})`,
     heroGlow: { position: "absolute", inset: 0, background: `radial-gradient(ellipse 70% 80% at 15% 30%, ${C.primary}14 0%, transparent 65%)`, pointerEvents: "none" },
     heroTag: { display: "inline-block", fontSize: 11, fontWeight: 600, letterSpacing: 1.5, textTransform: "uppercase", color: C.primary, border: `1px solid ${C.primary}44`, padding: "5px 12px", borderRadius: 20, marginBottom: 16 },
@@ -218,13 +218,15 @@ export default function Kenis4Pets() {
       <header style={dyn.header} className="k4p-header">
         <div style={ST.headerInner}>
           <div style={ST.logoArea} onClick={() => { setPage("home"); setShowCart(false); setSelectedProduct(null); }}>
-            <ProductImage src={config.brand.icon} size={42} style={ST.logoIcon} />
-            <div><h1 style={ST.logoText}>{config.brand.name}</h1><p style={ST.logoSub}>{config.brand.slogan}</p></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <img src="/brand/pinawoof-wordmark.png" alt={config.brand.name} style={ST.wordmarkImg} />
+              <p style={ST.logoSub}>{config.brand.slogan}</p>
+            </div>
           </div>
           <div style={ST.headerActions}>
-            {config.nav.showHome && <button style={ST.navBtn} onClick={() => { setPage("home"); setShowCart(false); setSelectedProduct(null); }}><IconHome color="#2B2118" size={19} /></button>}
-            {config.nav.showAdmin && <button style={ST.navBtn} onClick={() => { setPage("admin"); setShowCart(false); }}><IconSettings color="#2B2118" size={19} /></button>}
-            {config.nav.showCart && <button style={ST.cartBtn} onClick={() => setShowCart(!showCart)}><IconCart color="#2B2118" size={19} />{cartCount > 0 && <span style={dyn.badge}>{cartCount}</span>}</button>}
+            {config.nav.showHome && <button style={ST.navBtn} onClick={() => { setPage("home"); setShowCart(false); setSelectedProduct(null); }}><IconHome color="#1A1A1A" size={19} /></button>}
+            {config.nav.showAdmin && <button style={ST.navBtn} onClick={() => { setPage("admin"); setShowCart(false); }}><IconSettings color="#1A1A1A" size={19} /></button>}
+            {config.nav.showCart && <button style={ST.cartBtn} onClick={() => setShowCart(!showCart)}><IconCart color="#1A1A1A" size={19} />{cartCount > 0 && <span style={dyn.badge}>{cartCount}</span>}</button>}
           </div>
         </div>
       </header>
@@ -259,6 +261,7 @@ export default function Kenis4Pets() {
           {config.hero.show && <div style={dyn.hero}>
             <div style={dyn.heroGlow} />
             <div style={{ position: "relative", zIndex: 2 }}>
+              <img src="/brand/pinawoof-vertical.png" alt={config.brand.name} style={ST.heroLogo} />
               <span style={dyn.heroTag}>Accesorios para mascotas</span>
               <h2 style={ST.heroTitle}>{config.hero.title}</h2>
               <p style={ST.heroSub}>{config.hero.subtitle}</p>
@@ -267,7 +270,7 @@ export default function Kenis4Pets() {
           </div>}
 
           {config.sections.showFeatured && products.some((p) => p.featured) && <section style={ST.section}><span style={dyn.eyebrow}>Selección</span><h3 style={ST.sectionTitle}>{config.sections.featuredTitle}</h3><div style={ST.featuredScroll}>{products.filter((p) => p.featured).map((p) => (
-            <div key={p.id} style={ST.featuredCard} className="k4p-card" onClick={() => setSelectedProduct(p)}><div style={{ marginBottom: 8 }}><ProductImage src={p.image} size={50} /></div><p style={ST.featuredName}>{p.name}</p><p style={{ ...ST.featuredPrice, color: C.primary }}>${p.price.toFixed(2)}</p><button style={{ ...ST.smallBtn, background: C.accent }} onClick={(e) => { e.stopPropagation(); addToCart(p); }}>Añadir</button></div>
+            <div key={p.id} style={ST.featuredCard} className="k4p-card" onClick={() => setSelectedProduct(p)}><div style={{ marginBottom: 8 }}><ProductImage src={p.image} size={50} /></div><p style={ST.featuredName}>{p.name}</p><p style={{ ...ST.featuredPrice, color: C.primary }}>${p.price.toFixed(2)}</p><button style={{ ...ST.smallBtn, background: C.primary }} onClick={(e) => { e.stopPropagation(); addToCart(p); }}>Añadir</button></div>
           ))}</div></section>}
 
           <section style={ST.section}>
@@ -291,7 +294,7 @@ export default function Kenis4Pets() {
         {page === "admin" && <AdminPanel products={products} setProducts={setProducts} categories={categories} setCategories={setCategories} config={config} setConfig={setConfig} adminAuth={adminAuth} setAdminAuth={setAdminAuth} adminPinValue={adminPinValue} setAdminPinValue={setAdminPinValue} syncStatus={syncStatus} />}
       </main>
 
-      {config.footer.show && <footer style={ST.footer}><p>{config.footer.text}</p></footer>}
+      {config.footer.show && <footer style={ST.footer}><img src="/brand/pinawoof-wordmark.png" alt={config.brand.name} style={ST.footerLogo} /><p>{config.footer.text}</p></footer>}
     </div>
   );
 }
@@ -356,7 +359,7 @@ function CheckoutPage({ cart, cartTotal, onOrder, goBack, C, grad }) {
       <div style={{ background: "#f9f9f9", borderRadius: 12, padding: 16, marginBottom: 12, display: "flex", alignItems: "flex-start", gap: 10 }}><IconLock size={16} color="#888" /><p style={{ fontSize: 14, color: "#555", margin: 0 }}>Pagarás en la página segura de Stripe. Aceptamos tarjeta de crédito/débito.</p></div>
       <div style={{ background: "#FAFAFA", borderRadius: 12, padding: 16, marginTop: 12 }}><h4 style={{ margin: "0 0 10px", fontSize: 14 }}>Resumen</h4>{cart.map((i) => <div key={i.id} style={ST.sumRow}><span>{i.name} x{i.qty}</span><span>${(i.price * i.qty).toFixed(2)}</span></div>)}<div style={{ ...ST.sumRow, borderTop: `2px solid ${C.primary}`, paddingTop: 8, marginTop: 8, fontWeight: 700 }}><span>Total</span><span style={{ color: C.primary, fontSize: 18 }}>${cartTotal.toFixed(2)}</span></div></div>
       {error && <div style={{ background: "#FFF0F0", borderRadius: 10, padding: 12, marginTop: 12 }}><p style={{ color: "#E11D48", fontSize: 13, margin: 0 }}>{error}</p></div>}
-      <div style={ST.btnRow}><button style={ST.prevBtn} onClick={() => setStep(2)}>Atrás</button><button style={{ ...ST.nextBtn, background: `linear-gradient(135deg, ${C.accent}, #60A5FA)` }} onClick={handlePay} disabled={busy}>{busy ? "Redirigiendo..." : `Pagar $${cartTotal.toFixed(2)}`}</button></div>
+      <div style={ST.btnRow}><button style={ST.prevBtn} onClick={() => setStep(2)}>Atrás</button><button style={{ ...ST.nextBtn, background: grad }} onClick={handlePay} disabled={busy}>{busy ? "Redirigiendo..." : `Pagar $${cartTotal.toFixed(2)}`}</button></div>
     </div>}
   </div>;
 }
@@ -365,7 +368,7 @@ function OrderConfirmation({ onContinue, C, grad }) {
   return <div style={{ padding: "40px 0", textAlign: "center" }}><div style={{ background: "#fff", borderRadius: 24, padding: "40px 24px", boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
     <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#F0FDF4", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto" }}><IconCheck size={30} color="#16A34A" strokeWidth={3} /></div>
     <h2 style={{ margin: "16px 0 8px", fontSize: 24, fontWeight: 800 }}>Pedido confirmado</h2><p style={{ fontSize: 14, color: "#666", margin: "0 0 16px" }}>Recibirás un email con detalles y seguimiento.</p>
-    <div style={{ background: "#FFF5F5", borderRadius: 12, padding: 16, marginBottom: 20 }}><p style={{ fontWeight: 700, color: C.primary }}>Orden #KP-{Math.floor(Math.random() * 90000 + 10000)}</p><p style={{ fontSize: 13, color: "#888" }}>Entrega: 3-5 días hábiles</p></div>
+    <div style={{ background: "#FFF5F5", borderRadius: 12, padding: 16, marginBottom: 20 }}><p style={{ fontWeight: 700, color: C.primary }}>Orden #PW-{Math.floor(Math.random() * 90000 + 10000)}</p><p style={{ fontSize: 13, color: "#888" }}>Entrega: 3-5 días hábiles</p></div>
     <button style={{ ...ST.lgBtn, background: grad }} onClick={onContinue}>Seguir comprando</button>
   </div></div>;
 }
@@ -523,7 +526,7 @@ function AdminPanel({ products, setProducts, categories, setCategories, config, 
       </div>
       <div style={{ ...ST.previewBox, marginTop: 12 }}>
         <p style={{ margin: "0 0 10px", fontSize: 13, color: "#555" }}>Restablece colores, textos del hero, secciones y footer al diseño más reciente del código (útil tras una actualización de diseño). Tu nombre de marca, slogan y logo se mantienen.</p>
-        <button style={{ ...ST.saveBtn, background: "#2B2118" }} onClick={() => { if (confirm("¿Restablecer el diseño (colores, hero, secciones, footer) a los valores por defecto? Tu marca y logo se conservan.")) { setConfig((prev) => ({ ...DEFAULT_CONFIG, brand: prev.brand })); flash("✅ Diseño restablecido"); } }}>Restablecer diseño por defecto</button>
+        <button style={{ ...ST.saveBtn, background: "#1A1A1A" }} onClick={() => { if (confirm("¿Restablecer el diseño (colores, hero, secciones, footer) a los valores por defecto? Tu marca y logo se conservan.")) { setConfig((prev) => ({ ...DEFAULT_CONFIG, brand: prev.brand })); flash("✅ Diseño restablecido"); } }}>Restablecer diseño por defecto</button>
       </div>
     </div>}
 
@@ -533,35 +536,36 @@ function AdminPanel({ products, setProducts, categories, setCategories, config, 
 
 /* ═══════════════ STYLES ═══════════════ */
 const ST = {
-  toast: { position: "fixed", top: 20, left: "50%", transform: "translateX(-50%)", background: "#2B2118", color: "#fff", padding: "10px 20px", borderRadius: 10, fontSize: 14, fontWeight: 500, zIndex: 9999, boxShadow: "0 4px 15px rgba(0,0,0,0.15)", animation: "slideDown 0.4s ease" },
+  toast: { position: "fixed", top: 20, left: "50%", transform: "translateX(-50%)", background: "#1A1A1A", color: "#fff", padding: "10px 20px", borderRadius: 10, fontSize: 14, fontWeight: 500, zIndex: 9999, boxShadow: "0 4px 15px rgba(0,0,0,0.15)", animation: "slideDown 0.4s ease" },
   savedToast: { position: "fixed", top: 20, left: "50%", transform: "translateX(-50%)", background: "#22C55E", color: "#fff", padding: "10px 20px", borderRadius: 50, fontSize: 14, fontWeight: 700, zIndex: 9999, animation: "slideDown 0.4s ease" },
   headerInner: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", maxWidth: 900, margin: "0 auto" },
   logoArea: { display: "flex", alignItems: "center", gap: 10, cursor: "pointer" },
-  logoIcon: { fontSize: 32, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.2))" },
-  logoText: { margin: 0, fontSize: 21, fontWeight: 700, fontFamily: "'Poppins',sans-serif", color: "#2B2118", letterSpacing: -0.3 },
+  wordmarkImg: { height: 24, width: "auto", display: "block" },
+  footerLogo: { height: 16, width: "auto", opacity: 0.55, marginBottom: 8 },
   logoSub: { margin: 0, fontSize: 11, color: "#8A8072", fontWeight: 500 },
   headerActions: { display: "flex", alignItems: "center", gap: 8 },
   navBtn: { background: "none", border: "none", padding: "8px 10px", cursor: "pointer", display: "flex", alignItems: "center" },
   cartBtn: { background: "none", border: "none", padding: "8px 10px", cursor: "pointer", position: "relative", display: "flex", alignItems: "center" },
   overlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 200, backdropFilter: "blur(4px)" },
   cartSidebar: { position: "absolute", right: 0, top: 0, bottom: 0, width: "min(360px, 90vw)", background: "#fff", boxShadow: "-5px 0 30px rgba(0,0,0,0.15)", display: "flex", flexDirection: "column", animation: "slideIn 0.3s ease" },
-  cartHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "2px solid #f0f0f0" },
+  cartHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: "2px solid #B9B2AA" },
   cartTitle: { margin: 0, fontSize: 18, fontWeight: 700, fontFamily: "'Poppins',sans-serif" },
   closeBtn: { background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#999" },
   emptyCart: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 40 },
   cartItems: { flex: 1, overflowY: "auto", padding: "12px 16px" },
   cartItem: { display: "flex", alignItems: "center", gap: 12, padding: "12px 0", borderBottom: "1px solid #f5f5f5" },
-  cartItemBox: { width: 50, height: 50, background: "#FBF7EF", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" },
+  cartItemBox: { width: 50, height: 50, background: "#F5F2EC", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center" },
   cartItemName: { margin: 0, fontWeight: 700, fontSize: 14 },
   cartItemPrice: { margin: "2px 0 6px", fontSize: 13, fontWeight: 700 },
   removeBtn: { background: "none", border: "none", fontSize: 18, cursor: "pointer", opacity: 0.5 },
-  cartFooter: { padding: "16px 20px", borderTop: "2px solid #f0f0f0", background: "#FAFAFA" },
+  cartFooter: { padding: "16px 20px", borderTop: "2px solid #B9B2AA", background: "#FAFAFA" },
   cartTotalRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
   checkoutBtn: { width: "100%", color: "#fff", border: "none", borderRadius: 10, padding: "14px", fontSize: 15, fontWeight: 600, cursor: "pointer" },
   main: { maxWidth: 900, margin: "0 auto", padding: "0 16px" },
-  heroTitle: { margin: "0 0 10px", fontSize: 28, fontWeight: 700, fontFamily: "'Poppins',sans-serif", color: "#2B2118", lineHeight: 1.25, letterSpacing: -0.3 },
+  heroLogo: { display: "block", height: 110, width: "auto", marginBottom: 16 },
+  heroTitle: { margin: "0 0 10px", fontSize: 28, fontWeight: 300, fontFamily: "'Poppins',sans-serif", color: "#1A1A1A", lineHeight: 1.25, letterSpacing: 0.4 },
   heroSub: { margin: "0 0 20px", fontSize: 15, color: "#6B6255", fontWeight: 400, lineHeight: 1.5, maxWidth: 440 },
-  heroCta: { background: "#2B2118", color: "#fff", border: "none", borderRadius: 10, padding: "12px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer" },
+  heroCta: { background: "#1A1A1A", color: "#fff", border: "none", borderRadius: 10, padding: "12px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer" },
   heroEmojis: { display: "flex", gap: 10, marginTop: 16 },
   heroEmoji: { fontSize: 32, animation: "float 2s ease-in-out infinite" },
   bubble1: { position: "absolute", width: 120, height: 120, borderRadius: "50%", background: "rgba(255,255,255,0.2)", top: -30, right: -20 },
@@ -570,52 +574,52 @@ const ST = {
   section: { marginBottom: 24 },
   sectionTitle: { fontSize: 18, fontWeight: 700, fontFamily: "'Poppins',sans-serif", margin: "6px 0 12px" },
   featuredScroll: { display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8, WebkitOverflowScrolling: "touch" },
-  featuredCard: { minWidth: 140, background: "#fff", borderRadius: 12, padding: "16px 12px", textAlign: "center", border: "1px solid #EFE9DC", cursor: "pointer" },
+  featuredCard: { minWidth: 140, background: "#fff", borderRadius: 12, padding: "16px 12px", textAlign: "center", border: "1px solid #B9B2AA8C", cursor: "pointer" },
   featuredName: { margin: "0 0 4px", fontWeight: 600, fontFamily: "'Poppins',sans-serif", fontSize: 13 },
   featuredPrice: { margin: "0 0 8px", fontWeight: 800, fontSize: 16 },
   smallBtn: { color: "#fff", border: "none", borderRadius: 6, padding: "6px 12px", fontSize: 12, fontWeight: 600, cursor: "pointer" },
-  searchBar: { display: "flex", alignItems: "center", gap: 8, background: "#fff", borderRadius: 14, padding: "4px 12px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", border: "2px solid #f0f0f0", marginBottom: 12 },
+  searchBar: { display: "flex", alignItems: "center", gap: 8, background: "#fff", borderRadius: 14, padding: "4px 12px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", border: "2px solid #B9B2AA", marginBottom: 12 },
   searchInput: { flex: 1, border: "none", outline: "none", padding: "10px 0", fontSize: 15, fontFamily: "inherit", background: "transparent" },
   catRow: { display: "flex", gap: 8, overflowX: "auto", paddingBottom: 4 },
-  catBtn: { whiteSpace: "nowrap", background: "#fff", border: "1px solid #E8E1D3", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 500, color: "#6B6255", cursor: "pointer" },
+  catBtn: { whiteSpace: "nowrap", background: "#fff", border: "1px solid #B9B2AA", borderRadius: 8, padding: "8px 16px", fontSize: 13, fontWeight: 500, color: "#6B6255", cursor: "pointer" },
   grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 14 },
-  card: { background: "#fff", borderRadius: 12, overflow: "hidden", border: "1px solid #EFE9DC", cursor: "pointer" },
-  cardImg: { padding: "24px 0", textAlign: "center", background: "#FBF7EF" },
+  card: { background: "#fff", borderRadius: 12, overflow: "hidden", border: "1px solid #B9B2AA8C", cursor: "pointer" },
+  cardImg: { padding: "24px 0", textAlign: "center", background: "#F5F2EC" },
   cardInfo: { padding: "12px 16px 16px" },
   cardCat: { fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5 },
   cardName: { margin: "4px 0 6px", fontSize: 16, fontWeight: 600, fontFamily: "'Poppins',sans-serif" },
   cardDesc: { margin: "0 0 12px", fontSize: 13, color: "#888", lineHeight: 1.4 },
   cardBot: { display: "flex", justifyContent: "space-between", alignItems: "center" },
-  backBtn: { background: "none", border: "none", color: "#FF6B6B", fontSize: 15, fontWeight: 700, cursor: "pointer", padding: "4px 0", marginBottom: 12 },
-  detailCard: { background: "#fff", borderRadius: 14, overflow: "hidden", border: "1px solid #EFE9DC" },
-  detailImgBox: { textAlign: "center", padding: "40px 0", background: "#FBF7EF" },
+  backBtn: { background: "none", border: "none", color: "#9C3A4C", fontSize: 15, fontWeight: 700, cursor: "pointer", padding: "4px 0", marginBottom: 12 },
+  detailCard: { background: "#fff", borderRadius: 14, overflow: "hidden", border: "1px solid #B9B2AA8C" },
+  detailImgBox: { textAlign: "center", padding: "40px 0", background: "#F5F2EC" },
   lgBtn: { width: "100%", color: "#fff", border: "none", borderRadius: 10, padding: "16px", fontSize: 16, fontWeight: 600, cursor: "pointer" },
   qtyRow: { display: "flex", alignItems: "center", gap: 8 },
-  qtyBtn: { width: 32, height: 32, borderRadius: 10, border: "2px solid #eee", background: "#fff", fontSize: 18, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" },
+  qtyBtn: { width: 32, height: 32, borderRadius: 10, border: "2px solid #B9B2AA", background: "#fff", fontSize: 18, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" },
   qtyNum: { fontSize: 16, fontWeight: 800, minWidth: 24, textAlign: "center" },
   steps: { display: "flex", alignItems: "center", gap: 4, marginBottom: 20, flexWrap: "wrap" },
   stepCircle: { width: 28, height: 28, borderRadius: 50, fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" },
-  stepDone: { width: 28, height: 28, borderRadius: 50, background: "#4ECDC4", color: "#fff", fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" },
+  stepDone: { width: 28, height: 28, borderRadius: 50, background: "#9C3A4C", color: "#fff", fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" },
   stepPending: { width: 28, height: 28, borderRadius: 50, background: "#eee", color: "#bbb", fontSize: 13, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" },
   stepLine: { width: 20, height: 2, background: "#eee", borderRadius: 2 },
-  formCard: { background: "#fff", borderRadius: 14, padding: "20px", border: "1px solid #EFE9DC", marginBottom: 16 },
+  formCard: { background: "#fff", borderRadius: 14, padding: "20px", border: "1px solid #B9B2AA8C", marginBottom: 16 },
   formTitle: { margin: "0 0 14px", fontSize: 17, fontWeight: 800 },
-  input: { width: "100%", padding: "12px 14px", border: "2px solid #eee", borderRadius: 12, fontSize: 15, fontFamily: "inherit", outline: "none", marginBottom: 10, boxSizing: "border-box" },
-  inputSm: { padding: "8px 10px", border: "2px solid #eee", borderRadius: 8, fontSize: 13, fontFamily: "inherit", outline: "none", boxSizing: "border-box" },
+  input: { width: "100%", padding: "12px 14px", border: "2px solid #B9B2AA", borderRadius: 12, fontSize: 15, fontFamily: "inherit", outline: "none", marginBottom: 10, boxSizing: "border-box" },
+  inputSm: { padding: "8px 10px", border: "2px solid #B9B2AA", borderRadius: 8, fontSize: 13, fontFamily: "inherit", outline: "none", boxSizing: "border-box" },
   btnRow: { display: "flex", gap: 10, marginTop: 8 },
-  nextBtn: { flex: 1, background: "#E15A45", color: "#fff", border: "none", borderRadius: 10, padding: "13px", fontSize: 15, fontWeight: 600, cursor: "pointer" },
-  prevBtn: { background: "#F5F1E8", color: "#6B6255", border: "none", borderRadius: 10, padding: "13px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer" },
-  payBtn: { flex: 1, background: "#f5f5f5", border: "2px solid #eee", borderRadius: 12, padding: "12px 8px", fontSize: 13, fontWeight: 700, cursor: "pointer", textAlign: "center" },
+  nextBtn: { flex: 1, background: "#9C3A4C", color: "#fff", border: "none", borderRadius: 10, padding: "13px", fontSize: 15, fontWeight: 600, cursor: "pointer" },
+  prevBtn: { background: "#F5F2EC", color: "#6B6255", border: "none", borderRadius: 10, padding: "13px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer" },
+  payBtn: { flex: 1, background: "#f5f5f5", border: "2px solid #B9B2AA", borderRadius: 12, padding: "12px 8px", fontSize: 13, fontWeight: 700, cursor: "pointer", textAlign: "center" },
   payActive: { flex: 1, background: "#FFF0F0", border: "2px solid", borderRadius: 12, padding: "12px 8px", fontSize: 13, fontWeight: 700, cursor: "pointer", textAlign: "center" },
   sumRow: { display: "flex", justifyContent: "space-between", fontSize: 13, padding: "4px 0", color: "#555" },
-  footer: { textAlign: "center", padding: "20px 16px", fontSize: 13, color: "#aaa", borderTop: "1px solid #f0f0f0", marginTop: 40 },
+  footer: { textAlign: "center", padding: "20px 16px", fontSize: 13, color: "#aaa", borderTop: "1px solid #B9B2AA", marginTop: 40 },
   /* Admin */
   adminLogin: { display: "flex", justifyContent: "center", padding: "60px 0" },
   adminLoginCard: { background: "#fff", borderRadius: 24, padding: "40px 30px", textAlign: "center", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", width: "100%", maxWidth: 300 },
   tabNav: { display: "flex", gap: 6, overflowX: "auto", paddingBottom: 12, marginBottom: 12 },
-  tabInactive: { display: "flex", flexDirection: "column", alignItems: "center", gap: 2, padding: "10px 12px", background: "#fff", border: "2px solid #eee", borderRadius: 14, cursor: "pointer", minWidth: 56 },
-  tabActive: { display: "flex", flexDirection: "column", alignItems: "center", gap: 2, padding: "10px 12px", background: "#FFF0F0", border: "2px solid #FF6B6B", borderRadius: 14, cursor: "pointer", minWidth: 56, color: "#FF6B6B", fontWeight: 700 },
-  addBtn: { width: "100%", background: "#4ECDC4", color: "#fff", border: "none", borderRadius: 14, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", marginBottom: 12 },
+  tabInactive: { display: "flex", flexDirection: "column", alignItems: "center", gap: 2, padding: "10px 12px", background: "#fff", border: "2px solid #B9B2AA", borderRadius: 14, cursor: "pointer", minWidth: 56 },
+  tabActive: { display: "flex", flexDirection: "column", alignItems: "center", gap: 2, padding: "10px 12px", background: "#FFF0F0", border: "2px solid #9C3A4C", borderRadius: 14, cursor: "pointer", minWidth: 56, color: "#9C3A4C", fontWeight: 700 },
+  addBtn: { width: "100%", background: "#9C3A4C", color: "#fff", border: "none", borderRadius: 14, padding: "12px", fontSize: 15, fontWeight: 700, cursor: "pointer", marginBottom: 12 },
   statsRow: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8, marginBottom: 16 },
   statCard: { background: "#fff", borderRadius: 14, padding: "12px 6px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" },
   statVal: { margin: "4px 0 2px", fontSize: 18, fontWeight: 900 },
@@ -625,32 +629,32 @@ const ST = {
   rowImg: { width: 44, height: 44, borderRadius: 10, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", background: "#FFF5F5", flexShrink: 0 },
   editSm: { background: "#FFF5E6", border: "none", borderRadius: 8, padding: "6px 10px", fontSize: 16, cursor: "pointer" },
   delSm: { background: "#FFF0F0", border: "none", borderRadius: 8, padding: "6px 10px", fontSize: 16, cursor: "pointer" },
-  saveSm: { background: "#4ECDC4", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" },
+  saveSm: { background: "#9C3A4C", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" },
   cancelSm: { background: "#f0f0f0", color: "#888", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer" },
   checkLabel: { display: "flex", alignItems: "center", fontSize: 14, color: "#555", marginBottom: 12 },
-  catAddBtn: { background: "#A855F7", color: "#fff", border: "none", borderRadius: 12, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" },
+  catAddBtn: { background: "#9C3A4C", color: "#fff", border: "none", borderRadius: 12, padding: "10px 14px", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" },
   fLabel: { display: "block", fontSize: 13, fontWeight: 700, color: "#666", margin: "0 0 4px" },
-  saveBtn: { width: "100%", background: "linear-gradient(135deg, #22C55E, #4ECDC4)", color: "#fff", border: "none", borderRadius: 14, padding: "14px", fontSize: 15, fontWeight: 800, cursor: "pointer", marginTop: 12 },
-  colorPick: { width: 44, height: 44, border: "2px solid #eee", borderRadius: 12, cursor: "pointer", padding: 2 },
+  saveBtn: { width: "100%", background: "linear-gradient(135deg, #22C55E, #9C3A4C)", color: "#fff", border: "none", borderRadius: 14, padding: "14px", fontSize: 15, fontWeight: 800, cursor: "pointer", marginTop: 12 },
+  colorPick: { width: 44, height: 44, border: "2px solid #B9B2AA", borderRadius: 12, cursor: "pointer", padding: 2 },
   previewBox: { background: "#F9F9F9", border: "2px dashed #ddd", borderRadius: 14, padding: 16, marginTop: 8, marginBottom: 8 },
   previewLbl: { margin: "0 0 8px", fontSize: 12, fontWeight: 700, color: "#aaa", textTransform: "uppercase" },
   /* Image Uploader */
   imageSection: { background: "#FAFAFA", borderRadius: 14, padding: 16, marginBottom: 12 },
   imageSectionTitle: { margin: "0 0 10px", fontSize: 14, fontWeight: 700, color: "#555" },
   imageToggle: { display: "flex", gap: 6, marginBottom: 10 },
-  imgToggleBtn: { flex: 1, background: "#fff", border: "2px solid #eee", borderRadius: 10, padding: "10px 6px", fontSize: 13, fontWeight: 700, cursor: "pointer", textAlign: "center", color: "#888" },
-  imgToggleActive: { flex: 1, background: "#FFF0F0", border: "2px solid #FF6B6B", borderRadius: 10, padding: "10px 6px", fontSize: 13, fontWeight: 700, cursor: "pointer", textAlign: "center", color: "#FF6B6B" },
-  imgToggleBtnSm: { flex: 1, background: "#fff", border: "2px solid #eee", borderRadius: 8, padding: "6px", fontSize: 12, fontWeight: 700, cursor: "pointer", textAlign: "center", color: "#888" },
-  imgToggleActiveSm: { flex: 1, background: "#FFF0F0", border: "2px solid #FF6B6B", borderRadius: 8, padding: "6px", fontSize: 12, fontWeight: 700, cursor: "pointer", textAlign: "center", color: "#FF6B6B" },
-  uploadBtn: { display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "14px", background: "linear-gradient(135deg, #FF6B6B, #A855F7)", color: "#fff", borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: "pointer", border: "none", marginBottom: 8 },
-  uploadBtnSm: { display: "flex", alignItems: "center", justifyContent: "center", gap: 6, width: "100%", padding: "8px", background: "linear-gradient(135deg, #FF6B6B, #A855F7)", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none" },
+  imgToggleBtn: { flex: 1, background: "#fff", border: "2px solid #B9B2AA", borderRadius: 10, padding: "10px 6px", fontSize: 13, fontWeight: 700, cursor: "pointer", textAlign: "center", color: "#888" },
+  imgToggleActive: { flex: 1, background: "#FFF0F0", border: "2px solid #9C3A4C", borderRadius: 10, padding: "10px 6px", fontSize: 13, fontWeight: 700, cursor: "pointer", textAlign: "center", color: "#9C3A4C" },
+  imgToggleBtnSm: { flex: 1, background: "#fff", border: "2px solid #B9B2AA", borderRadius: 8, padding: "6px", fontSize: 12, fontWeight: 700, cursor: "pointer", textAlign: "center", color: "#888" },
+  imgToggleActiveSm: { flex: 1, background: "#FFF0F0", border: "2px solid #9C3A4C", borderRadius: 8, padding: "6px", fontSize: 12, fontWeight: 700, cursor: "pointer", textAlign: "center", color: "#9C3A4C" },
+  uploadBtn: { display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: "100%", padding: "14px", background: "linear-gradient(135deg, #9C3A4C, #9C3A4C)", color: "#fff", borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: "pointer", border: "none", marginBottom: 8 },
+  uploadBtnSm: { display: "flex", alignItems: "center", justifyContent: "center", gap: 6, width: "100%", padding: "8px", background: "linear-gradient(135deg, #9C3A4C, #9C3A4C)", color: "#fff", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none" },
   imgHelp: { fontSize: 12, color: "#aaa", margin: "-4px 0 8px" },
-  imgPreview: { background: "#fff", borderRadius: 12, padding: 12, textAlign: "center", border: "2px dashed #eee" },
+  imgPreview: { background: "#fff", borderRadius: 12, padding: 12, textAlign: "center", border: "2px dashed #B9B2AA" },
   imgPreviewImg: { maxWidth: "100%", maxHeight: 160, objectFit: "contain", borderRadius: 8 },
   imgPreviewActions: { display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 8 },
   imgPreviewLabel: { fontSize: 11, color: "#aaa", margin: 0 },
-  imgRemoveBtn: { background: "#FFF0F0", color: "#FF6B6B", border: "none", borderRadius: 8, padding: "4px 10px", fontSize: 12, fontWeight: 700, cursor: "pointer" },
-  emojiPreview: { textAlign: "center", padding: 12, background: "#fff", borderRadius: 12, border: "2px dashed #eee" },
+  imgRemoveBtn: { background: "#FFF0F0", color: "#9C3A4C", border: "none", borderRadius: 8, padding: "4px 10px", fontSize: 12, fontWeight: 700, cursor: "pointer" },
+  emojiPreview: { textAlign: "center", padding: 12, background: "#fff", borderRadius: 12, border: "2px dashed #B9B2AA" },
   imgErrorBox: { background: "#FFF0F0", border: "2px solid #FF4444", borderRadius: 12, padding: "12px 14px", marginBottom: 10 },
   imgErrorText: { margin: 0, color: "#CC0000", fontSize: 13, fontWeight: 700, lineHeight: 1.4 },
 };
