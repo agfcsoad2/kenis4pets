@@ -262,7 +262,6 @@ export default function PinaWoof() {
           {config.hero.show && <div style={dyn.hero}>
             <div style={dyn.heroGlow} />
             <div style={{ position: "relative", zIndex: 2 }}>
-              <img src="/brand/pinawoof-wordmark.png" alt={config.brand.name} style={ST.heroLogo} />
               <span style={dyn.heroTag}>Accesorios para mascotas</span>
               <h2 style={ST.heroTitle}>{config.hero.title}</h2>
               <p style={ST.heroSub}>{config.hero.subtitle}</p>
@@ -564,7 +563,6 @@ const ST = {
   cartTotalRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
   checkoutBtn: { width: "100%", color: "#fff", border: "none", borderRadius: 10, padding: "14px", fontSize: 15, fontWeight: 600, cursor: "pointer" },
   main: { maxWidth: 900, margin: "0 auto", padding: "0 16px" },
-  heroLogo: { display: "block", height: 42, width: "auto", marginBottom: 18 },
   heroTitle: { margin: "0 0 10px", fontSize: 28, fontWeight: 300, fontFamily: "'Poppins',sans-serif", color: "#1A1A1A", lineHeight: 1.25, letterSpacing: 0.4 },
   heroSub: { margin: "0 0 20px", fontSize: 15, color: "#6B6255", fontWeight: 400, lineHeight: 1.5, maxWidth: 440 },
   heroCta: { background: "#1A1A1A", color: "#fff", border: "none", borderRadius: 10, padding: "12px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer" },
